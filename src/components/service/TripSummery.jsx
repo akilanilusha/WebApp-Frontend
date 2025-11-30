@@ -193,10 +193,7 @@ export default function TripSummary({
           <span className="font-bold text-xl">Total Cost:</span>
 
           <div className="w-full">
-            <div className="border-b-2 border-black pb-1 text-right font-semibold">
-              {endDate || ""}
-            </div>
-            <div className="border-b-2 border-black mt-1"></div>
+            <div className=" text-right font-semibold">{endDate || ""}</div>
           </div>
         </div>
       </div>
@@ -247,6 +244,11 @@ export default function TripSummary({
             </p>
           </div>
         )} */}
+      </div>
+      <div className="flex justify-cente ">
+        <button className="bg-[#0F3B45] text-white w-full py-2 rounded-full flex items-center gap-2 hover:bg-[#0c2e36] justify-center mt-4">
+          Confirm & Pay
+        </button>
       </div>
     </div>
   );

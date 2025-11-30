@@ -76,7 +76,7 @@ export default function CustomPackage() {
     setLoading(true);
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_GOOGLE_MAPS_API_URL}/places?district=${selectedDistrict}`
+        `${import.meta.env.VITE_GOOGLE_MAPS_API_URL}/places/${selectedDistrict}`
       );
       setPlaces(res.data);
     } catch (err) {
@@ -146,16 +146,15 @@ export default function CustomPackage() {
 
           {/* trip summery*/}
           <div className="col-span-12 lg:col-span-4">
-            
-              <TripSummary
-                name={nameOfBooker}
-                startLocation={startLocation}
-                endLocation={endLocation}
-                startDate={startDate}
-                endDate={endDate}
-                waypoints={destinations}
-                routeData={routeData}
-              />
+            <TripSummary
+              name={nameOfBooker}
+              startLocation={startLocation}
+              endLocation={endLocation}
+              startDate={startDate}
+              endDate={endDate}
+              waypoints={destinations}
+              routeData={routeData}
+            />
           </div>
         </div>
 
