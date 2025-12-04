@@ -4,6 +4,16 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss(),],
+  screens: {
+    theme: {
+    screens: {
+      esm:'320px',
+      sm: '480px',   // your custom mobile breakpoint
+      md: '768px',
+      lg: '1024px',
+      xl: '1280px'
+    },
+  },},
+  plugins: [react(), tailwindcss(),]
   
 })
