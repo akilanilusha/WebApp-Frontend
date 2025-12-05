@@ -5,9 +5,7 @@ import VehicleModal from "./VehicleModal";
 import DriverModal from "./DriverModal";
 import TourGuideModal from "./TourGuideModal";
 
-// --------------------
-// TEMP DATA (Vehicles + Related Drivers)
-// --------------------
+// ------- TEMP DATA -------
 const tempVehicles = [
   {
     id: 1,
@@ -116,10 +114,7 @@ const tempTourGuides = [
   },
 ];
 
-// --------------------
-// MAIN COMPONENT
-// --------------------
-function RouteTrip({
+export default function RouteTrip({
   startLocation,
   setStartLocation,
   endLocation,
@@ -134,16 +129,16 @@ function RouteTrip({
 }) {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
+  const [selectedGuide, setSelectedGuide] = useState(null);
 
   const [showVehicleModal, setShowVehicleModal] = useState(false);
   const [showDriverModal, setShowDriverModal] = useState(false);
-
-  const [selectedGuide, setSelectedGuide] = useState(null);
   const [showGuideModal, setShowGuideModal] = useState(false);
 
+  // ---- handlers ----
   const handleVehicleSelect = (vehicle) => {
     setSelectedVehicle(vehicle);
-    setSelectedDriver(null); // reset driver when changing vehicle
+    setSelectedDriver(null);
     setShowVehicleModal(false);
   };
 
@@ -153,27 +148,34 @@ function RouteTrip({
   };
 
   return (
-    <div className="bg-gray-50 mb-10 p-6 rounded-xl">
-      <h1 className="text-3xl font-bold mb-6">Trip Details</h1>
+    <div
+      className="
+    mb-10 p-6 
+    rounded-2xl
+    bg-white/50 
+    backdrop-blur-[15px]
+    border border-white/30
+    shadow-[0_4px_30px_rgba(0,0,0,0.1)]
+  "
+    >
+      <h1 className="text-3xl font-bold mb-8">Trip Details</h1>
 
-      <div className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 items-start">
-        {/* Start Location */}
+      {/* -------- GRID -------- */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <InputField
           label="Start Location"
           value={startLocation}
           onChange={(e) => setStartLocation(e.target.value)}
-          enableAutocomplete={true}
+          enableAutocomplete
         />
 
-        {/* End Location */}
         <InputField
           label="End Location"
           value={endLocation}
           onChange={(e) => setEndLocation(e.target.value)}
         />
 
-        {/* Destination List */}
-        <div className="row-span-2">
+        <div className="sm:col-span-2 lg:col-span-1 row-span-2">
           <DynamicList
             title="Add Destination"
             destinations={destinations}
@@ -181,7 +183,6 @@ function RouteTrip({
           />
         </div>
 
-        {/* Start Date */}
         <InputField
           label="Start Date"
           type="date"
@@ -189,7 +190,6 @@ function RouteTrip({
           onChange={(e) => setStartDate(e.target.value)}
         />
 
-        {/* End Date */}
         <InputField
           label="End Date"
           type="date"
@@ -197,138 +197,57 @@ function RouteTrip({
           onChange={(e) => setEndDate(e.target.value)}
         />
 
-        {/* VEHICLE SELECTION */}
+        {/* VEHICLE */}
         <div>
           <button
-            className="bg-[#fafafa] border border-black px-4 py-3 rounded-md hover:bg-gray-300 w-full text-center"
+            className="glass-btn w-full"
             onClick={() => setShowVehicleModal(true)}
           >
             Select Vehicle
           </button>
 
           {selectedVehicle && (
-            <div className="mt-3 p-4 rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-all duration-300 h-40 flex items-center">
-              <div className="flex gap-4 items-center w-full">
-                {/* Vehicle Image */}
-                <div className="w-28 h-28 rounded-xl overflow-hidden shadow-sm flex-shrink-0">
-                  <img
-                    src={selectedVehicle.images[0]}
-                    className="w-full h-full object-cover"
-                    alt="vehicle"
-                  />
-                </div>
-
-                {/* Vehicle Details */}
-                <div className="flex flex-col justify-center flex-grow">
-                  <p className="text-xl font-semibold">
-                    {selectedVehicle.name}
-                  </p>
-                  <p className="text-gray-600 text-sm mt-1">
-                    {selectedVehicle.type}
-                  </p>
-
-                  <div className="mt-2 py-1 px-3 bg-gray-100 rounded-full text-sm w-fit">
-                    🚘 {selectedVehicle.seats} Seats
-                  </div>
-                </div>
-              </div>
-            </div>
+            <GlassCard item={selectedVehicle} type="vehicle" />
           )}
         </div>
 
-        {/* DRIVER SELECTION */}
+        {/* DRIVER */}
         <div>
           <button
-            className="bg-[#fafafa] border border-black px-4 py-3 rounded-md hover:bg-gray-300 w-full text-center"
             disabled={!selectedVehicle}
+            className={`glass-btn w-full ${
+              !selectedVehicle ? "opacity-50 cursor-not-allowed" : ""
+            }`}
             onClick={() => setShowDriverModal(true)}
           >
             Select Driver
           </button>
 
-          {selectedDriver && (
-            <div className="mt-3 p-4 rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-all duration-300 h-40 flex items-center">
-              <div className="flex gap-4 items-center w-full">
-                {/* Driver Image */}
-                <div className="w-28 h-28 rounded-xl overflow-hidden border shadow-sm flex-shrink-0">
-                  <img
-                    src={selectedDriver.photo}
-                    className="w-full h-full object-cover"
-                    alt="driver"
-                  />
-                </div>
-
-                {/* Driver Details */}
-                <div className="flex flex-col justify-center flex-grow">
-                  <p className="text-xl font-semibold">{selectedDriver.name}</p>
-
-                  <p className="text-gray-600 text-sm mt-1">
-                    🎖 Experience: {selectedDriver.experience}
-                  </p>
-
-                  <p className="text-gray-600 text-sm">
-                    ⭐ Rating: {selectedDriver.rating}
-                  </p>
-
-                  <p className="text-gray-600 text-sm">
-                    📞 {selectedDriver.phone}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+          {selectedDriver && <GlassCard item={selectedDriver} type="driver" />}
         </div>
 
+        {/* TOUR GUIDE */}
         <div>
           <button
-            className="bg-[#fafafa] border border-black px-4 py-3 rounded-md hover:bg-gray-300 w-full text-center"
+            className="glass-btn w-full"
             onClick={() => setShowGuideModal(true)}
           >
             Select Tour Guide
           </button>
 
-          {selectedGuide && (
-            <div className="mt-3 p-4 rounded-2xl border border-gray-200 bg-white shadow-sm h-40 flex items-center">
-              <div className="flex gap-4 items-center w-full">
-                <div className="w-28 h-28 rounded-xl overflow-hidden border shadow-sm">
-                  <img
-                    src={selectedGuide.photo}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                <div className="flex flex-col justify-center">
-                  <p className="text-xl font-semibold">{selectedGuide.name}</p>
-                  <p className="text-gray-600 text-sm">
-                    🎖 Experience: {selectedGuide.experience}
-                  </p>
-                  <p className="text-gray-600 text-sm">
-                    🌐 {selectedGuide.languages.join(", ")}
-                  </p>
-                  <p className="text-gray-600 text-sm">
-                    ⭐ {selectedGuide.rating}
-                  </p>
-                  <p className="text-gray-600 text-sm">
-                    📞 {selectedGuide.phone}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* PROCEED BUTTON */}
-        <div>
-          <button
-            className="bg-[#fafafa] border border-black px-4 py-3 rounded-md hover:bg-gray-300 w-full text-center"
-            onClick={submit}
-          >
-            Proceed
-          </button>
+          {selectedGuide && <GlassCard item={selectedGuide} type="guide" />}
         </div>
       </div>
 
-      {/* VEHICLE MODAL */}
+      {/* ---- ACTION BUTTONS ---- */}
+      <div className="mt-10 flex flex-col sm:flex-row justify-end gap-4">
+        <button className="clear-btn">Clear</button>
+        <button className="proceed-btn" onClick={submit}>
+          Proceed
+        </button>
+      </div>
+
+      {/* ---- MODALS ---- */}
       {showVehicleModal && (
         <VehicleModal
           vehicles={tempVehicles}
@@ -337,10 +256,9 @@ function RouteTrip({
         />
       )}
 
-      {/* DRIVER MODAL */}
-      {showDriverModal && selectedVehicle && (
+      {showDriverModal && (
         <DriverModal
-          drivers={selectedVehicle.drivers}
+          drivers={selectedVehicle?.drivers || []}
           onClose={() => setShowDriverModal(false)}
           onSelect={handleDriverSelect}
         />
@@ -360,4 +278,54 @@ function RouteTrip({
   );
 }
 
-export default RouteTrip;
+// ------- SUB COMPONENT FOR CARDS -------
+function GlassCard({ item, type }) {
+  return (
+    <div
+      className="
+        mt-3 p-4 rounded-2xl 
+        bg-white/30 backdrop-blur-xl 
+        border border-gray-200
+        shadow-md h-40 
+        flex items-center gap-4
+      "
+    >
+      <div className="w-28 h-28 rounded-xl overflow-hidden shadow">
+        <img
+          src={item.photo || item.images?.[0]}
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      <div className="flex flex-col">
+        <p className="text-lg font-semibold">{item.name}</p>
+
+        {type === "vehicle" && (
+          <>
+            <p className="text-gray-600 text-sm">{item.type}</p>
+            <p className="text-gray-600 text-sm">{item.seats} Seats</p>
+          </>
+        )}
+
+        {type === "driver" && (
+          <>
+            <p className="text-gray-600 text-sm">🎖 {item.experience}</p>
+            <p className="text-gray-600 text-sm">⭐ {item.rating}</p>
+            <p className="text-gray-600 text-sm">📞 {item.phone}</p>
+          </>
+        )}
+
+        {type === "guide" && (
+          <>
+            <p className="text-gray-600 text-sm">🎖 {item.experience}</p>
+            <p className="text-gray-600 text-sm">
+              🌐 {item.languages.join(", ")}
+            </p>
+            <p className="text-gray-600 text-sm">⭐ {item.rating}</p>
+            <p className="text-gray-600 text-sm">📞 {item.phone}</p>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}

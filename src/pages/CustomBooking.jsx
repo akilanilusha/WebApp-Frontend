@@ -6,6 +6,7 @@ import { FaLocationDot } from "react-icons/fa6";
 import PlacesGrid from "../components/service/PlaceGrid";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import bgImage from "../assets/bg.webp";
 
 export default function CustomPackage() {
   //booking details state
@@ -92,8 +93,15 @@ export default function CustomPackage() {
 
   return (
     <>
-      <div>
-        <div className="text-center m-5">
+      <div
+        className="
+    min-h-screen 
+    bg-slate-900/60
+    bg-cover bg-center bg-fixed
+  "
+        style={{ backgroundImage: `url(${bgImage})` }}
+      >
+        <div className="text-center p-10">
           <h1 className="hidden md:block font-bold text-gray-900 md:text-4xl ">
             Make Your Dream Tour
           </h1>

@@ -137,7 +137,11 @@ export default function TripSummary({
   }, [routeData]);
 
   return (
-    <div className="w-full bg-white rounded-2xl border border-[#C7C7C7] drop-shadow-xl/50 p-10">
+    <div className="w-full bg-white/60 
+  backdrop-blur-xl
+  border border-white/20 
+  shadow-lg 
+  rounded-2xl  p-10">
       <h1 className="text-2xl font-bold text-center">Trip Summary</h1>
       <hr className="my-3" />
 

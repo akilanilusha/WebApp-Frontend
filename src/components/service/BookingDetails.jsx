@@ -21,11 +21,21 @@ function BookingDetails({
   setBabies,
 }) {
   return (
-    <div className=" bg-gray-50 mb-10 p-3">
+    <div
+      className="
+  bg-white/50 
+  backdrop-blur-xl
+  border border-white/20 
+  shadow-lg 
+  rounded-2xl 
+  p-6 
+  mb-10
+"
+    >
+      {" "}
       <h1 className="text-3xl font-bold mb-6 text-center sm:text-left">
         Booking Details
       </h1>
-
       <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
         {/* Name of Booker */}
         <InputField
@@ -71,11 +81,9 @@ function BookingDetails({
           onChange={(e) => setDepartureAirport(e.target.value)}
         />
       </div>
-
       <h1 className="text-xl mt-6 mb-3 text-center font-bold sm:text-left">
         Passenger Count
       </h1>
-
       <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
         {/* Name of Booker */}
         <InputField
