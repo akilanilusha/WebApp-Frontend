@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import {Link} from "react-router-dom";
 
 export default function TripSummary({
   name,
@@ -245,11 +246,13 @@ export default function TripSummary({
           </div>
         )} */}
       </div>
+      <Link to="/payment">
       <div className="flex justify-cente ">
         <button className="bg-[#0F3B45] text-white w-full py-2 rounded-full flex items-center gap-2 hover:bg-[#0c2e36] justify-center mt-4">
           Confirm & Pay
         </button>
       </div>
+      </Link>
     </div>
   );
 }
