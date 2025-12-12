@@ -8,10 +8,16 @@ export default function TripSummary({
   endDate,
   waypoints,
   routeData,
+  cost_per_km,
+  booking_price,
+  guid_cost=4500.00,
+  confirmBooking,
 }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const [summary, setSummary] = useState(null);
+  const millageCharge = (cost_per_km || 0) * (summary?.totalKm || 0);
+  const totalCost = (booking_price || 0) + millageCharge + (guid_cost || 0);
 
   useEffect(() => {
     const g = window.google;
@@ -137,14 +143,15 @@ export default function TripSummary({
   }, [routeData]);
 
   return (
-    <div className="w-full bg-white/60 
+    <div
+      className="w-full bg-white/60 
   backdrop-blur-xl
   border border-white/20 
   shadow-lg 
-  rounded-2xl  p-10">
+  rounded-2xl  p-10"
+    >
       <h1 className="text-2xl font-bold text-center">Trip Summary</h1>
       <hr className="my-3" />
-
       <div className="w-full max-w-xl mt-6 space-y-4 text-lg p-4">
         <div className="grid grid-cols-2">
           <span className="font-light">Name :</span>
@@ -181,13 +188,20 @@ export default function TripSummary({
         </div>
 
         <div className="grid grid-cols-2">
-          <span className="font-light">Vehicle Cost :</span>
-          <span className="text-right">{endDate || ""}</span>
+          <span className="font-light">Base Fare :</span>
+          <span className="text-right">{(booking_price || 0).toFixed(2)}</span>
+        </div>
+
+        <div className="grid grid-cols-2">
+          <span className="font-light">Mileage Charge :</span>
+          <span className="text-right">
+            {(millageCharge).toFixed(2)}
+          </span>
         </div>
 
         <div className="grid grid-cols-2">
           <span className="font-light">Guide Cost :</span>
-          <span className="text-right">{endDate || ""}</span>
+          <span className="text-right">{(guid_cost || 0).toFixed(2) || 0.00}</span>
         </div>
 
         <hr />
@@ -197,7 +211,7 @@ export default function TripSummary({
           <span className="font-bold text-xl">Total Cost:</span>
 
           <div className="w-full">
-            <div className=" text-right font-semibold">{endDate || ""}</div>
+            <div className=" text-right font-semibold">{(totalCost).toFixed(2)}</div>
           </div>
         </div>
       </div>
@@ -250,7 +264,7 @@ export default function TripSummary({
         )} */}
       </div>
       <div className="flex justify-cente ">
-        <button className="bg-[#0F3B45] text-white w-full py-2 rounded-full flex items-center gap-2 hover:bg-[#0c2e36] justify-center mt-4">
+        <button className="bg-[#0F3B45] text-white w-full py-2 rounded-full flex items-center gap-2 hover:bg-[#0c2e36] justify-center mt-4" onClick={confirmBooking}>
           Confirm & Pay
         </button>
       </div>

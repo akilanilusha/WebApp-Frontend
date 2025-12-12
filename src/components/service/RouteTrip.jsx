@@ -1,88 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import InputField from "../InputField";
 import DynamicList from "./DynamicList";
 import VehicleModal from "./VehicleModal";
 import DriverModal from "./DriverModal";
 import TourGuideModal from "./TourGuideModal";
-
-// ------- TEMP DATA -------
-const tempVehicles = [
-  {
-    id: 1,
-    name: "Toyota Prius",
-    type: "Car",
-    seats: 4,
-    images: [
-      "https://img.freepik.com/free-psd/black-isolated-car_23-2151852894.jpg?semt=ais_hybrid&w=740&q=80",
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0fehJccs0vA7le8QDxQfr_zy1T2Otb5DjYw&s",
-    ],
-    drivers: [
-      {
-        id: 101,
-        name: "Kasun Perera",
-        experience: "5 years",
-        rating: 4.8,
-        phone: "0771234567",
-        photo: "https://randomuser.me/api/portraits/men/32.jpg",
-      },
-      {
-        id: 102,
-        name: "Ruwan Silva",
-        experience: "3 years",
-        rating: 4.6,
-        phone: "0719876543",
-        photo: "https://randomuser.me/api/portraits/men/74.jpg",
-      },
-    ],
-  },
-
-  {
-    id: 2,
-    name: "Nissan Caravan",
-    type: "Van",
-    seats: 12,
-    images: [
-      "https://img.freepik.com/free-photo/van_...jpg",
-      "https://img.freepik.com/free-photo/van-inside_...jpg",
-    ],
-    drivers: [
-      {
-        id: 201,
-        name: "Saman Jayawardena",
-        experience: "10 years",
-        rating: 4.9,
-        phone: "0758877445",
-        photo: "https://randomuser.me/api/portraits/men/45.jpg",
-      },
-      {
-        id: 202,
-        name: "Nimal Kumara",
-        experience: "6 years",
-        rating: 4.7,
-        phone: "0761122334",
-        photo: "https://randomuser.me/api/portraits/men/11.jpg",
-      },
-    ],
-  },
-
-  {
-    id: 3,
-    name: "Toyota Axio",
-    type: "Car",
-    seats: 4,
-    images: ["https://img.freepik.com/free-photo/sedan_...jpg"],
-    drivers: [
-      {
-        id: 301,
-        name: "Isuru Madushan",
-        experience: "4 years",
-        rating: 4.5,
-        phone: "0785566778",
-        photo: "https://randomuser.me/api/portraits/men/21.jpg",
-      },
-    ],
-  },
-];
+import axios from "axios";
 
 const tempTourGuides = [
   {
@@ -126,6 +48,10 @@ export default function RouteTrip({
   destinations,
   setDestinations,
   submit,
+  costPerKm,
+  setCostPerKm,
+  booking_price,
+  setBookingPrice,
 }) {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
@@ -135,11 +61,52 @@ export default function RouteTrip({
   const [showDriverModal, setShowDriverModal] = useState(false);
   const [showGuideModal, setShowGuideModal] = useState(false);
 
+  const [vehicles, setVehicles] = useState([]);
+  const [drivers, setDrivers] = useState([]); // NEW
+
+  // ====================
+  // LOAD ALL DRIVERS
+  // ====================
+  useEffect(() => {
+    async function loadDrivers() {
+      try {
+        const res = await axios.get(
+          "http://localhost:8081/driveController/api/v1"
+        );
+        console.log("Fetched Drivers:", res);
+        setDrivers(res.data);
+      } catch (error) {
+        console.error("Error loading drivers:", error);
+      }
+    }
+    loadDrivers();
+  }, []);
+
+  // ====================
+  // LOAD VEHICLES
+  // ====================
+  async function loadVehicles() {
+    try {
+      const response = await axios.get(
+        "http://localhost:8080/webRequestController/api/v1/getvehicles"
+      );
+      const vehicles = response.data;
+      console.log("Fetched Vehicles:", vehicles);
+      setVehicles(vehicles);
+      setShowVehicleModal(true);
+    } catch (error) {
+      console.error("Error fetching vehicles:", error);
+    }
+  }
+
   // ---- handlers ----
   const handleVehicleSelect = (vehicle) => {
     setSelectedVehicle(vehicle);
     setSelectedDriver(null);
     setShowVehicleModal(false);
+
+    setCostPerKm(vehicle.costPerKm);
+    setBookingPrice(vehicle.bookingPrice);
   };
 
   const handleDriverSelect = (driver) => {
@@ -147,16 +114,25 @@ export default function RouteTrip({
     setShowDriverModal(false);
   };
 
+  // ====================
+  // FILTER DRIVERS BY SELECTED VEHICLE
+  // ====================
+  const filteredDrivers = selectedVehicle?.vehicleId
+    ? drivers.filter((d) =>
+        d.selectedVehicleCategories.includes(selectedVehicle.vehicleId)
+      )
+    : [];
+
   return (
     <div
       className="
-    mb-10 p-6 
-    rounded-2xl
-    bg-white/50 
-    backdrop-blur-[15px]
-    border border-white/30
-    shadow-[0_4px_30px_rgba(0,0,0,0.1)]
-  "
+        mb-10 p-6 
+        rounded-2xl
+        bg-white/50 
+        backdrop-blur-[15px]
+        border border-white/30
+        shadow-[0_4px_30px_rgba(0,0,0,0.1)]
+      "
     >
       <h1 className="text-3xl font-bold mb-8">Trip Details</h1>
 
@@ -199,10 +175,7 @@ export default function RouteTrip({
 
         {/* VEHICLE */}
         <div>
-          <button
-            className="glass-btn w-full"
-            onClick={() => setShowVehicleModal(true)}
-          >
+          <button className="glass-btn w-full" onClick={loadVehicles}>
             Select Vehicle
           </button>
 
@@ -250,7 +223,7 @@ export default function RouteTrip({
       {/* ---- MODALS ---- */}
       {showVehicleModal && (
         <VehicleModal
-          vehicles={tempVehicles}
+          vehicles={vehicles}
           onClose={() => setShowVehicleModal(false)}
           onSelect={handleVehicleSelect}
         />
@@ -258,7 +231,7 @@ export default function RouteTrip({
 
       {showDriverModal && (
         <DriverModal
-          drivers={selectedVehicle?.drivers || []}
+          drivers={filteredDrivers} // IMPORTANT CHANGE
           onClose={() => setShowDriverModal(false)}
           onSelect={handleDriverSelect}
         />
@@ -292,37 +265,44 @@ function GlassCard({ item, type }) {
     >
       <div className="w-28 h-28 rounded-xl overflow-hidden shadow">
         <img
-          src={item.photo || item.images?.[0]}
+          src={item.driverImage || item.vehicleImages?.[0]}
           className="w-full h-full object-cover"
         />
       </div>
 
       <div className="flex flex-col">
-        <p className="text-lg font-semibold">{item.name}</p>
+        <p className="text-lg font-semibold">{item.vehicleName}</p>
 
         {type === "vehicle" && (
           <>
-            <p className="text-gray-600 text-sm">{item.type}</p>
-            <p className="text-gray-600 text-sm">{item.seats} Seats</p>
+            <p className="text-gray-600 text-sm">
+              Booking Price-{item.bookingPrice}
+            </p>
+            <p className="text-gray-600 text-sm">
+              Const Per Km -{item.costPerKm}
+            </p>
+            <p className="text-gray-600 text-sm">{item.passengerCount} Seats</p>
           </>
         )}
 
         {type === "driver" && (
           <>
-            <p className="text-gray-600 text-sm">🎖 {item.experience}</p>
-            <p className="text-gray-600 text-sm">⭐ {item.rating}</p>
-            <p className="text-gray-600 text-sm">📞 {item.phone}</p>
+            <p className="text-gray-600 text-sm">
+              {item.firstName} {item.lastName}
+            </p>
+            <p className="text-gray-600 text-sm">{item.rating}</p>
+            <p className="text-gray-600 text-sm">{item.phone}</p>
           </>
         )}
 
         {type === "guide" && (
           <>
-            <p className="text-gray-600 text-sm">🎖 {item.experience}</p>
+            <p className="text-gray-600 text-sm">{item.experience}</p>
             <p className="text-gray-600 text-sm">
               🌐 {item.languages.join(", ")}
             </p>
-            <p className="text-gray-600 text-sm">⭐ {item.rating}</p>
-            <p className="text-gray-600 text-sm">📞 {item.phone}</p>
+            <p className="text-gray-600 text-sm">{item.rating}</p>
+            <p className="text-gray-600 text-sm">{item.phone}</p>
           </>
         )}
       </div>

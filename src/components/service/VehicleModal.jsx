@@ -1,8 +1,7 @@
+import axios from "axios";
 import React from "react";
 
-// --------------------
 // IMAGE CAROUSEL
-// --------------------
 function ImageCarousel({ images }) {
   const [index, setIndex] = React.useState(0);
 
@@ -18,7 +17,7 @@ function ImageCarousel({ images }) {
   const handleTouchEnd = (e) => {
     const endX = e.changedTouches[0].clientX;
 
-    if (touchStartX.current - endX > 50) next(); 
+    if (touchStartX.current - endX > 50) next();
     if (endX - touchStartX.current > 50) prev();
   };
 
@@ -63,46 +62,67 @@ function ImageCarousel({ images }) {
   );
 }
 
-// --------------------
 // MAIN MODAL COMPONENT
-// --------------------
 function VehicleModal({ vehicles, onClose, onSelect }) {
+  async function viewVehicle(vehicleId) {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/vehicleController/api/v1/detailsOfVehicle/${vehicleId}`
+      );
+      console.log("Vehicle Details:", response.data);
+    } catch (error) {
+      console.error("Error viewing vehicle:", error);
+    }
+  }
+
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-xl w-full max-w-3xl max-h-[80vh] overflow-y-auto shadow-lg">
-
+      <div className="bg-white p-6 rounded-xl w-full max-w-4xl max-h-[80vh] overflow-y-auto shadow-lg">
         {/* HEADER */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">Select a Vehicle</h2>
-          <button className="text-lg font-bold" onClick={onClose}>✖</button>
+          <button className="text-lg font-bold" onClick={onClose}>
+            ✖
+          </button>
         </div>
 
         {/* VEHICLE LIST */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {vehicles.map((v) => (
             <div
-              key={v.id}
+              key={v.vehicleId}
               className="border rounded-xl p-3 hover:bg-gray-100 transition"
             >
               {/* IMAGE CAROUSEL */}
-              <ImageCarousel images={v.images} />
+              <ImageCarousel images={v.vehicleImages} />
 
               {/* DETAILS */}
-              <h3 className="text-xl font-semibold mt-2">{v.name}</h3>
+              <h3 className="text-xl font-semibold mt-2">{v.vehicleName}</h3>
               <p className="text-gray-600">Type: {v.type}</p>
-              <p className="text-gray-600">Seats: {v.seats}</p>
+              <p className="text-gray-600">
+                Passenger count: {v.passengerCount}
+              </p>
+              <p className="text-gray-600">
+                Booking Price: {v.bookingPrice?.toFixed(2)} USD
+              </p>
+
+              <p className="text-gray-600">
+                Cost per km: {v.costPerKm?.toFixed(2)} USD
+              </p> 
 
               {/* SELECT BUTTON */}
-              <button
-                onClick={() => onSelect(v)}
-                className="mt-3 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700"
-              >
-                Select Vehicle
-              </button>
+              <div>
+                <button onClick={() => viewVehicle(v.vehicleId)}>view</button>
+                <button
+                  onClick={() => onSelect(v)}
+                  className="mt-3 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700"
+                >
+                  Select Vehicle
+                </button>
+              </div>
             </div>
           ))}
         </div>
-
       </div>
     </div>
   );

@@ -3,13 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import InputField from "../components/InputField";
 import bgImage from "../assets/Document.png";
 import axios from "axios";
-import  {jwtDecode}  from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { toast } from "react-hot-toast";
 
 export default function UserLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState({}); 
+  const [errors, setErrors] = useState({});
 
   const navigator = useNavigate();
 
@@ -36,7 +36,7 @@ export default function UserLogin() {
 
     await toast
       .promise(
-        axios.post("http://localhost:8080/api/v1/tourists/login", {
+        axios.post("http://localhost:8084/api/v1/tourists/login", {
           email,
           password,
         }),
