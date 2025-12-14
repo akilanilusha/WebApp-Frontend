@@ -36,6 +36,14 @@ export default function CustomPackage() {
   const [cost_per_km, setCostPerKm] = useState(0);
   const [booking_price, setBookingPrice] = useState(0);
 
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [selectedDriver, setSelectedDriver] = useState(null);
+  const [selectedGuide, setSelectedGuide] = useState(null);
+
+  // =============================
+  // FUNCTIONS
+  // =============================
+
   const validateBeforeConfirm = () => {
     if (!nameOfBooker) return "Name is required.";
     if (!passportNumber) return "Passport number is required.";
@@ -111,12 +119,87 @@ export default function CustomPackage() {
       return;
     }
 
-    if(!localStorage.getItem("token")){
+    if (!localStorage.getItem("token")) {
       toast.error("Please log in to confirm the booking.");
       return;
     }
+
+    const bookingPayload = {
+      user: {
+        userId: localStorage.getItem("userId"),
+        role: localStorage.getItem("role"),
+      },
+
+      bookingDetails: {
+        nameOfBooker,
+        passportNumber,
+        arrivalDateTime,
+        departureDateTime,
+        flightNumber,
+        departureAirport,
+        passengers: {
+          adults,
+          children,
+          babies,
+        },
+      },
+
+      tripDetails: {
+        startLocation,
+        endLocation,
+        startDate,
+        endDate,
+        isVehicle,
+        destinations,
+      },
+
+      routeDetails: {
+        distance: routeData?.distance,
+        duration: routeData?.duration,
+        polyline: routeData?.polyline,
+        costPerKm: cost_per_km,
+        bookingPrice: booking_price,
+      },
+      resources: {
+        vehicle: selectedVehicle
+          ? {
+              vehicleId: selectedVehicle.vehicleId,
+              vehicleName: selectedVehicle.vehicleName,
+              vehicleNumber: selectedVehicle.vehicleNumber,
+              category: selectedVehicle.category,
+            }
+          : null,
+
+        driver: selectedDriver
+          ? {
+              driverId: selectedDriver.driverId,
+              firstName: selectedDriver.firstName,
+              lastName: selectedDriver.lastName,
+              phone: selectedDriver.phone1,
+            }
+          : null,
+
+        guide: selectedGuide
+          ? {
+              guideId: selectedGuide.id,
+              name: selectedGuide.name,
+              language: selectedGuide.language,
+              experienceYears: selectedGuide.experienceYears,
+            }
+          : null,
+      },
+
+      metadata: {
+        createdAt: new Date().toISOString(),
+        source: "CUSTOM_PACKAGE",
+      },
+    };
+
+    console.group("📦 Booking Payload");
+    console.log(bookingPayload);
+    console.groupEnd();
+
     toast.success("Booking confirmed successfully!");
-    console.log("Booking Confirmed!");
   };
 
   const fetchPlaces = async () => {
@@ -205,6 +288,12 @@ export default function CustomPackage() {
               setDestinations={setDestinations}
               setCostPerKm={setCostPerKm}
               setBookingPrice={setBookingPrice}
+              selectedVehicle={selectedVehicle}
+              setSelectedVehicle={setSelectedVehicle}
+              selectedDriver={selectedDriver}
+              setSelectedDriver={setSelectedDriver}
+              selectedGuide={selectedGuide}
+              setSelectedGuide={setSelectedGuide}
               submit={submitTrip}
             />
           </div>
