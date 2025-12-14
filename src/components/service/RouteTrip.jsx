@@ -52,10 +52,13 @@ export default function RouteTrip({
   setCostPerKm,
   booking_price,
   setBookingPrice,
+  selectedVehicle,
+  setSelectedVehicle,
+  selectedDriver,
+  setSelectedDriver,
+  selectedGuide,
+  setSelectedGuide,
 }) {
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
-  const [selectedDriver, setSelectedDriver] = useState(null);
-  const [selectedGuide, setSelectedGuide] = useState(null);
 
   const [showVehicleModal, setShowVehicleModal] = useState(false);
   const [showDriverModal, setShowDriverModal] = useState(false);
