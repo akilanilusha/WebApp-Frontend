@@ -122,7 +122,7 @@ export default function UserRegister() {
         password: "",
         confirm_password: "",
       });
-
+      
       toast.success("Registration successful! You can now log in.");
       navigator("/login");
       setProfileImagePreview(null);
