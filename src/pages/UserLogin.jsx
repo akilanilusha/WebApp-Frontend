@@ -51,7 +51,9 @@ export default function UserLogin() {
             localStorage.setItem("userId", decoded.userId);
             localStorage.setItem("firstName", decoded.firstName);
             localStorage.setItem("lastName", decoded.lastName);
+            localStorage.setItem("profileImageUrl", decoded.profileImageUrl);
             localStorage.setItem("role", decoded.role);
+            window.dispatchEvent(new Event("auth-change"));
 
             navigator("/dashboard");
             return "Login successful! 👋";
