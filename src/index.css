@@ -8,26 +8,26 @@
 
 
 @theme {
-    --color-primary: #ffffff;
-    --color-secondary: #1da9cc;
-    --color-ternary: #e8f7fa;
-    --color-accent: #113d47;
-    --color-text: #1c1c1b;
+  --color-primary: #ffffff;
+  --color-secondary: #1da9cc;
+  --color-ternary: #e8f7fa;
+  --color-accent: #113d47;
+  --color-text: #1c1c1b;
 }
 
 @layer components {
-  
+
   .featured-carousel .swiper-slide-active .slide-card {
     @apply scale-95 -translate-y-4 brightness-100 ;
   }
 
-  
+
   .featured-carousel .swiper-slide-next .slide-card,
   .featured-carousel .swiper-slide-prev .slide-card {
     @apply scale-90 opacity-80 blur-[2px];
   }
 
-  
+
   .featured-carousel .swiper-slide:not(.swiper-slide-active):not(.swiper-slide-next):not(.swiper-slide-prev) .slide-card {
     @apply scale-75 opacity-50 blur-sm;
   }
@@ -63,3 +63,14 @@
 }
 
 
+.glass-btn {
+  @apply bg-white/30 backdrop-blur-xl border border-gray-400 px-4 py-3 rounded-md hover:bg-white/50 transition shadow;
+}
+
+.proceed-btn {
+  @apply bg-[#0F3B45] text-white px-10 py-3 rounded-sm shadow hover:bg-[#0c2e36] transition;
+}
+
+.clear-btn {
+  @apply border border-red-500 text-red-600 bg-transparent px-10 py-3 rounded-md hover:bg-red-500/10 transition shadow-sm font-medium;
+}

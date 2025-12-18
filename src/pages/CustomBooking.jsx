@@ -6,9 +6,11 @@ import { FaLocationDot } from "react-icons/fa6";
 import PlacesGrid from "../components/service/PlaceGrid";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import bgImage from "../assets/bg.webp";
+import { toast } from "react-hot-toast";
 
 export default function CustomPackage() {
-  //booking details state
+  // Booking details state
   const [nameOfBooker, setNameOfBooker] = useState("");
   const [passportNumber, setPassportNumber] = useState("");
   const [arrivalDateTime, setArrivalDateTime] = useState("");
@@ -18,7 +20,8 @@ export default function CustomPackage() {
   const [adults, setAdults] = useState(0);
   const [children, setChildres] = useState(0);
   const [babies, setBabies] = useState(0);
-  //Trip data state
+
+  // Trip data state
   const [startLocation, setStartLocation] = useState("");
   const [endLocation, setEndLocation] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -30,6 +33,38 @@ export default function CustomPackage() {
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(false);
   const [routeData, setRouteData] = useState(null);
+  const [cost_per_km, setCostPerKm] = useState(0);
+  const [booking_price, setBookingPrice] = useState(0);
+
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [selectedDriver, setSelectedDriver] = useState(null);
+  const [selectedGuide, setSelectedGuide] = useState(null);
+
+  // =============================
+  // FUNCTIONS
+  // =============================
+
+  const validateBeforeConfirm = () => {
+    if (!nameOfBooker) return "Name is required.";
+    if (!passportNumber) return "Passport number is required.";
+    if (!arrivalDateTime) return "Arrival date/time is required.";
+    if (!departureDateTime) return "Departure date/time is required.";
+    if (!flightNumber) return "Flight number is required.";
+    if (!departureAirport) return "Departure airport is required.";
+
+    if (!startLocation) return "Start location is required.";
+    if (!endLocation) return "End location is required.";
+    if (!startDate) return "Trip start date is required.";
+    if (!endDate) return "Trip end date is required.";
+
+    if (destinations.length === 0)
+      return "Please add at least one destination.";
+
+    if (!routeData) return "Please calculate the route before confirming.";
+
+    // If everything is OK
+    return null;
+  };
 
   const submitTrip = async () => {
     const tripData = {
@@ -53,9 +88,12 @@ export default function CustomPackage() {
         destinations,
       },
     };
+
+    const loadingToast = toast.loading("Calculating route...");
+
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/maps/shortest-route",
+        `${import.meta.env.VITE_GOOGLE_MAPS_API_URL}/maps/shortest-route`,
         {
           start: startLocation,
           end: endLocation,
@@ -63,21 +101,118 @@ export default function CustomPackage() {
         }
       );
 
-      console.log("Route API Response:", response.data);
+      toast.dismiss(loadingToast);
+      toast.success("Route calculated successfully!");
       setRouteData(response.data);
     } catch (error) {
+      toast.dismiss(loadingToast);
+      toast.error("Failed to calculate route. Please try again.");
       console.error("Route API Error:", error.response?.data || error.message);
     }
-    //console.log("🚀 Final Submitted Trip Data:", tripData);
+  };
+
+  const confirm_booking = () => {
+    const error = validateBeforeConfirm();
+
+    if (error) {
+      toast.error(error);
+      return;
+    }
+
+    if (!localStorage.getItem("token")) {
+      toast.error("Please log in to confirm the booking.");
+      return;
+    }
+
+    const bookingPayload = {
+      user: {
+        userId: localStorage.getItem("userId"),
+        role: localStorage.getItem("role"),
+      },
+
+      bookingDetails: {
+        nameOfBooker,
+        passportNumber,
+        arrivalDateTime,
+        departureDateTime,
+        flightNumber,
+        departureAirport,
+        passengers: {
+          adults,
+          children,
+          babies,
+        },
+      },
+
+      tripDetails: {
+        startLocation,
+        endLocation,
+        startDate,
+        endDate,
+        isVehicle,
+        destinations,
+      },
+
+      routeDetails: {
+        distance: routeData?.distance,
+        duration: routeData?.duration,
+        polyline: routeData?.polyline,
+        costPerKm: cost_per_km,
+        bookingPrice: booking_price,
+      },
+      resources: {
+        vehicle: selectedVehicle
+          ? {
+              vehicleId: selectedVehicle.vehicleId,
+              vehicleName: selectedVehicle.vehicleName,
+              vehicleNumber: selectedVehicle.vehicleNumber,
+              category: selectedVehicle.category,
+            }
+          : null,
+
+        driver: selectedDriver
+          ? {
+              driverId: selectedDriver.driverId,
+              firstName: selectedDriver.firstName,
+              lastName: selectedDriver.lastName,
+              phone: selectedDriver.phone1,
+            }
+          : null,
+
+        guide: selectedGuide
+          ? {
+              guideId: selectedGuide.id,
+              name: selectedGuide.name,
+              language: selectedGuide.language,
+              experienceYears: selectedGuide.experienceYears,
+            }
+          : null,
+      },
+
+      metadata: {
+        createdAt: new Date().toISOString(),
+        source: "CUSTOM_PACKAGE",
+      },
+    };
+
+    console.group("📦 Booking Payload");
+    console.log(bookingPayload);
+    console.groupEnd();
+
+    toast.success("Booking confirmed successfully!");
   };
 
   const fetchPlaces = async () => {
     if (!selectedDistrict) return;
     setLoading(true);
+
     try {
       const res = await axios.get(
-        `http://localhost:80s80/api/places?district=${selectedDistrict}`
+        `${
+          import.meta.env.VITE_GOOGLE_MAPS_API_URL
+        }/placess/${selectedDistrict}`
       );
+
       setPlaces(res.data);
     } catch (err) {
       console.error("Error fetching places:", err);
@@ -90,11 +225,21 @@ export default function CustomPackage() {
     fetchPlaces();
   }, [selectedDistrict]);
 
+  // =============================
+  // UI
+  // =============================
   return (
     <>
-      <div>
-        <div className="text-center m-5">
-          <h1 className="hidden md:block font-bold text-gray-900 md:text-4xl ">
+      <div
+        className="
+          min-h-screen 
+          bg-slate-900/60
+          bg-cover bg-center bg-fixed
+        "
+        style={{ backgroundImage: `url(${bgImage})` }}
+      >
+        <div className="text-center p-10">
+          <h1 className="hidden md:block font-bold text-gray-900 md:text-4xl">
             Make Your Dream Tour
           </h1>
           <h1 className="font-bold text-gray-900 md:hidden">
@@ -105,7 +250,7 @@ export default function CustomPackage() {
         </div>
 
         <div className="container mx-auto px-2 grid grid-cols-12 gap-4">
-          {/* booking Panel */}
+          {/* Booking Panel */}
           <div className="col-span-12 lg:col-span-8">
             <BookingDetails
               nameOfBooker={nameOfBooker}
@@ -127,6 +272,7 @@ export default function CustomPackage() {
               babies={babies}
               setBabies={setBabies}
             />
+
             <RouteTrip
               startLocation={startLocation}
               setStartLocation={setStartLocation}
@@ -140,27 +286,32 @@ export default function CustomPackage() {
               setVehicle={setVehicle}
               destinations={destinations}
               setDestinations={setDestinations}
+              setCostPerKm={setCostPerKm}
+              setBookingPrice={setBookingPrice}
+              selectedVehicle={selectedVehicle}
+              setSelectedVehicle={setSelectedVehicle}
+              selectedDriver={selectedDriver}
+              setSelectedDriver={setSelectedDriver}
+              selectedGuide={selectedGuide}
+              setSelectedGuide={setSelectedGuide}
               submit={submitTrip}
             />
           </div>
 
-          {/* trip summery*/}
+          {/* Trip Summary */}
           <div className="col-span-12 lg:col-span-4">
-            {routeData ? (
-              <TripSummary
-                name={nameOfBooker}
-                startLocation={startLocation}
-                endLocation={endLocation}
-                startDate={startDate}
-                endDate={endDate}
-                waypoints={destinations}
-                routeData={routeData}
-              />
-            ) : (
-              <p className="text-gray-500 text-center italic">
-                Enter trip details & click Proceed
-              </p>
-            )}
+            <TripSummary
+              name={nameOfBooker}
+              startLocation={startLocation}
+              endLocation={endLocation}
+              startDate={startDate}
+              endDate={endDate}
+              waypoints={destinations}
+              routeData={routeData}
+              cost_per_km={cost_per_km}
+              booking_price={booking_price}
+              confirmBooking={confirm_booking}
+            />
           </div>
         </div>
 
