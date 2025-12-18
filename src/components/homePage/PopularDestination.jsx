@@ -7,7 +7,7 @@ import Topic from "./topic";
             <section className="w-full h-[700px] flex flex-col bg-primary">
                 <Topic topic="Top Destination" subtopic="Popular Destination" margin="mt-20"/>
 
-                <div className="w-full mt-15 flex items-center justify-center px-4 sm:px-10 overflow-hidden">
+                <div className="w-full mt-15 flex items-center justify-center">
                     
                     {/* <Card1  />
                     <Card1 hid="hidden" blo="sm:block" />

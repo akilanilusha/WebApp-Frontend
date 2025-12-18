@@ -55,7 +55,7 @@ function Card2(
           <span>{duration}</span>
         </div>
 
-        <button className="flex items-center gap-2 rounded-full border border-emerald-500 px-4 py-1.5 text-sm font-medium text-emerald-600 hover:bg-emerald-500 hover:text-white transition">
+        <button className="flex items-center gap-2 rounded-full border border-secondary px-4 py-1.5 text-sm font-medium text-secondary hover:bg-emerald-500 hover:text-white transition">
           Book Now
           <span>→</span>
         </button>

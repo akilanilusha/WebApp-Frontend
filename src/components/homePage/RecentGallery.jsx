@@ -12,7 +12,7 @@ function RecentGallery(){
     return(
           
 
-            <section className="w-full h-full flex flex-col  justify-start items-center">
+            <section className="w-full h-full flex flex-col  justify-start items-center mt-15">
                 <Topic topic="Explore Our Gallery" subtopic="Recent Gallery"/>
 
                 

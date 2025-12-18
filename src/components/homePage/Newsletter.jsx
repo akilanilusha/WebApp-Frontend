@@ -10,8 +10,8 @@ function Newsletter(){
                                 <Topic topic="This is our" subtopic="Latest Newslatter"/>
                             </div>
                             <div className="flex flex-row w-fit h-fit gap-10">
-                                <Btn name="Subscribe Now" bg="bg-accent"/>
-                                <Btn name="Subscribe Now" bg="bg-accent"/>
+                                <Btn name="Subscribe Now" bg="bg-primary" border="border-2 border-accent" text="text-accent" hover="hover:bg-secondary" hovert="hover:text-white"/>
+                                <Btn name="May Be Later" bg="bg-accent" text="text-primary" hover="hover:bg-secondary" hovert="hover:text-white"/>
                             </div>
                         </div>
         

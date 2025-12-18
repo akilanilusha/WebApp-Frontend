@@ -8,21 +8,18 @@ import AboutUs from "../components/homePage/AboutUs";
 import Reviews from "../components/homePage/Reviews";
 import Newsletter from "../components/homePage/Newsletter";
 import Hero from "../components/homePage/Hero";
+import Logo from "../components/homePage/logo";
 
 
 function Home(){
 
 
-
-    
     return(
         <div className="w-full h-fit flex flex-col">
             
            
 
             <Hero />
-
-         
 
             <TourCatergory />
 
@@ -32,16 +29,14 @@ function Home(){
 
             <RecentGallery />
 
-
             <MeetGuide />
 
             <AboutUs />
-
+            <Logo />
             <Reviews />
 
-           
 
-
+            
             <Newsletter />
 
             
