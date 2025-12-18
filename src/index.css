@@ -36,14 +36,17 @@
 
 /* Tailwind component rules for Swiper center-scale effect */
 @layer components {
-    /* default (smaller) card */
-    .slide-card {
-        @apply transition-all duration-300 ease-out lg:scale-[0.90] opacity-90;
-        /* preserve 3d for smoother transforms */
-        backface-visibility: hidden;
 
-        will-change: transform;
-    }
+
+  /* default (smaller) card */
+  .slide-card {
+    @apply transition-all duration-300 ease-out scale-[0.90] opacity-90;
+    /* preserve 3d for smoother transforms */
+    backface-visibility: hidden;
+    will-change: transform;
+  }
+
+ 
 
     /* active centered slide: scale up and lift a bit, add shadow and higher z */
     .swiper-slide-active .slide-card {
