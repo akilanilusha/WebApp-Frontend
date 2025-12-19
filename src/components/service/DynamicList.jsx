@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { FiTrash2, FiPlus } from "react-icons/fi";
+import GooglePlaceInput from "../service/GooglePlaceInput";
 
-export default function DynamicList({ title = "Add Destination",destinations,setDestinations }) {
+export default function DynamicList({
+  title = "Add Destination",
+  destinations,
+  setDestinations,
+}) {
   const [newItem, setNewItem] = useState("");
 
   const addItem = () => {
@@ -15,8 +20,12 @@ export default function DynamicList({ title = "Add Destination",destinations,set
   };
 
   return (
-    <div className="space-y-2">
-      <label className="text-gray-900 text-[15px] font-medium">{title}</label>
+    <div className="">
+      <label className="text-gray-900 text-[15px] font-medium">
+        {title}
+      </label>
+
+      {/* EXISTING DESTINATIONS */}
       <div className="space-y-3">
         {destinations.map((item, index) => (
           <div
@@ -32,16 +41,12 @@ export default function DynamicList({ title = "Add Destination",destinations,set
         ))}
       </div>
 
+      {/* ADD NEW DESTINATION */}
       <div className="flex items-center gap-3">
-        <input
-          type="text"
-          placeholder="Enter location"
+        <GooglePlaceInput
           value={newItem}
-          onChange={(e) => setNewItem(e.target.value)}
-          className="
-            w-full bg-white border border-gray-300 rounded-md 
-            px-4 py-3 text-gray-700 focus:outline-none focus:border-gray-400
-          "
+          onChange={setNewItem}
+          placeholder="Enter location"
         />
 
         <button

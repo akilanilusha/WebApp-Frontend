@@ -5,6 +5,7 @@ import VehicleModal from "./VehicleModal";
 import DriverModal from "./DriverModal";
 import TourGuideModal from "./TourGuideModal";
 import axios from "axios";
+import GooglePlaceInput from "../service/GooglePlaceInput";
 
 const tempTourGuides = [
   {
@@ -59,7 +60,6 @@ export default function RouteTrip({
   selectedGuide,
   setSelectedGuide,
 }) {
-
   const [showVehicleModal, setShowVehicleModal] = useState(false);
   const [showDriverModal, setShowDriverModal] = useState(false);
   const [showGuideModal, setShowGuideModal] = useState(false);
@@ -141,17 +141,16 @@ export default function RouteTrip({
 
       {/* -------- GRID -------- */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <InputField
+        <GooglePlaceInput
           label="Start Location"
           value={startLocation}
-          onChange={(e) => setStartLocation(e.target.value)}
-          enableAutocomplete
+          onChange={setStartLocation}
         />
 
-        <InputField
+        <GooglePlaceInput
           label="End Location"
           value={endLocation}
-          onChange={(e) => setEndLocation(e.target.value)}
+          onChange={setEndLocation}
         />
 
         <div className="sm:col-span-2 lg:col-span-1 row-span-2">
