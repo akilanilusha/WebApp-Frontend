@@ -18,7 +18,7 @@
 @layer components {
 
   .featured-carousel .swiper-slide-active .slide-card {
-    @apply scale-110 -translate-y-4 brightness-100;
+    @apply scale-95 -translate-y-4 brightness-100 ;
   }
 
 
@@ -37,6 +37,7 @@
 /* Tailwind component rules for Swiper center-scale effect */
 @layer components {
 
+
   /* default (smaller) card */
   .slide-card {
     @apply transition-all duration-300 ease-out scale-[0.90] opacity-90;
@@ -45,21 +46,23 @@
     will-change: transform;
   }
 
-  /* active centered slide: scale up and lift a bit, add shadow and higher z */
-  .swiper-slide-active .slide-card {
-    @apply scale-100 -translate-y-3 opacity-100 z-20 shadow-2xl;
-  }
+ 
 
-  /* neighbors slightly larger than base but smaller than the center */
-  .swiper-slide-next .slide-card,
-  .swiper-slide-prev .slide-card {
-    @apply scale-[0.95] opacity-95;
-  }
+    /* active centered slide: scale up and lift a bit, add shadow and higher z */
+    .swiper-slide-active .slide-card {
+        @apply scale-110 -translate-y-3 opacity-100 z-20 shadow-2xl;
+    }
 
-  /* ensure swiper container doesn't clip for the scaled effect */
-  .swiper {
-    @apply overflow-visible;
-  }
+    /* neighbors slightly larger than base but smaller than the center */
+    .swiper-slide-next .slide-card,
+    .swiper-slide-prev .slide-card {
+        @apply scale-[0.95] opacity-95;
+    }
+
+    /* ensure swiper container doesn't clip for the scaled effect */
+    .swiper {
+        @apply overflow-hidden;
+    }
 }
 
 

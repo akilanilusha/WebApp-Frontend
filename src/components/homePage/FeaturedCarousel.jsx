@@ -29,7 +29,7 @@ const items = [
 
 export default function FeaturedCarousel() {
   return (
-    <div className="w-full max-w-6xl mx-auto bg-primary">
+    <div className="w-full max-w-fit lg:max-w-6xl mx-auto bg-primary py-6">
       <Swiper
         modules={[Autoplay, EffectCoverflow, A11y]}
         effect="coverflow"
@@ -38,6 +38,9 @@ export default function FeaturedCarousel() {
         freeMode={false}
         slidesPerView={1}
         navigation={true}
+
+
+
         coverflowEffect={{
           rotate: 0,
           stretch: 0,
@@ -51,7 +54,7 @@ export default function FeaturedCarousel() {
           1024: { slidesPerView: 4},
         }}
         className="featured-carousel"
-        // style={{ overflow: 'visible' }}
+
       >
         {items.map((it) => (
           <SwiperSlide
@@ -60,26 +63,32 @@ export default function FeaturedCarousel() {
           >
             <div
               className="
-                slide-card 
+                   bg-green-300
+                slide-card
+                flex
+                justify-center
+                items-center
                 relative 
-                rounded-3xl 
-                overflow-hidden 
                 shadow-xl
                 transition-all 
                 duration-500 
-                ease-out 
-               
+                ease-out
+               rounded-3xl
+               overflow-hidden
+               m-10
+               lg:m-0
               "
+
             >
               {/* image */}
               <img
                 src={it.img}
                 alt=""
-                className="w-[250px] h-[350px] md:w-[300px] md:h-[420px] object-cover "
+                className="w-full h-[350px] md:w-[300px] md:h-[420px] object-cover"
               />
 
               {/* overlay text */}
-              <div className="absolute bottom-5 left-5 text-white">
+              <div className="absolute bottom-5 left-1/6  sm:left-1/3 lg:left-5 text-white">
                 <h2 className="text-2xl font-semibold drop-shadow-lg">
                   {it.name}
                 </h2>
@@ -87,7 +96,7 @@ export default function FeaturedCarousel() {
               </div>
 
               {/* button */}
-              <button className="absolute bottom-5 right-30 sm:right-5 bg-white text-black px-4 py-2 rounded-full shadow-md text-sm hover:bg-gray-100 transition">
+              <button className="absolute bottom-5 right-1/6 esm:1/4 sm:right-1/3 lg:right-5  bg-white text-black px-4 py-2 rounded-full shadow-md text-sm hover:bg-gray-100 transition">
                 View All →
               </button>
             </div>
