@@ -6,6 +6,8 @@ import DriverModal from "./DriverModal";
 import TourGuideModal from "./TourGuideModal";
 import axios from "axios";
 import GooglePlaceInput from "../service/GooglePlaceInput";
+const DRIVER_API = import.meta.env.VITE_DRIVER_SERVICE_API_URL;
+const VEHICLE_API = import.meta.env.VITE_VEHICLE_SERVICE_API_URL;
 
 const tempTourGuides = [
   {
@@ -74,7 +76,7 @@ export default function RouteTrip({
     async function loadDrivers() {
       try {
         const res = await axios.get(
-          "http://localhost:8081/driveController/api/v1"
+          `${DRIVER_API}`
         );
         console.log("Fetched Drivers:", res);
         setDrivers(res.data);
@@ -91,7 +93,7 @@ export default function RouteTrip({
   async function loadVehicles() {
     try {
       const response = await axios.get(
-        "http://localhost:8080/webRequestController/api/v1/getvehicles"
+        `${VEHICLE_API}/webRequestController/api/v1/getvehicles`
       );
       const vehicles = response.data;
       console.log("Fetched Vehicles:", vehicles);

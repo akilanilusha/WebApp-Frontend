@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import {Link} from "react-router-dom";
 
 export default function TripSummary({
   name,
@@ -11,8 +10,10 @@ export default function TripSummary({
   routeData,
   cost_per_km,
   booking_price,
-  guid_cost=4500.00,
+  guid_cost = 4500.0,
   confirmBooking,
+  setDistance,
+  setDuration,
 }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
@@ -74,16 +75,20 @@ export default function TripSummary({
     const totalKm = (totalDist / 1000).toFixed(2);
     const hrs = Math.floor(totalDur / 3600);
     const mins = Math.floor((totalDur % 3600) / 60);
+const totalTimeText = `${hrs} hrs ${mins} mins`;
+const totalDurationMinutes = Math.floor(totalDur / 60);
 
     const orderedStops = route.waypoint_order.map((i) => waypoints[i]);
 
     setSummary({
       legsSummary,
       totalKm,
-      totalTimeText: `${hrs} hrs ${mins} mins`,
+      totalTimeText,
       orderedStops,
     });
 
+    setDistance(Number(totalKm));
+    setDuration(totalDurationMinutes);
     // ===== Draw polyline =====
     const decoded = g.maps.geometry.encoding.decodePath(
       route.overview_polyline.points
@@ -195,14 +200,14 @@ export default function TripSummary({
 
         <div className="grid grid-cols-2">
           <span className="font-light">Mileage Charge :</span>
-          <span className="text-right">
-            {(millageCharge).toFixed(2)}
-          </span>
+          <span className="text-right">{millageCharge.toFixed(2)}</span>
         </div>
 
         <div className="grid grid-cols-2">
           <span className="font-light">Guide Cost :</span>
-          <span className="text-right">{(guid_cost || 0).toFixed(2) || 0.00}</span>
+          <span className="text-right">
+            {(guid_cost || 0).toFixed(2) || 0.0}
+          </span>
         </div>
 
         <hr />
@@ -212,7 +217,9 @@ export default function TripSummary({
           <span className="font-bold text-xl">Total Cost:</span>
 
           <div className="w-full">
-            <div className=" text-right font-semibold">{(totalCost).toFixed(2)}</div>
+            <div className=" text-right font-semibold">
+              {totalCost.toFixed(2)}
+            </div>
           </div>
         </div>
       </div>
@@ -264,13 +271,14 @@ export default function TripSummary({
           </div>
         )} */}
       </div>
-      <Link to="/payment">
-      <div className="flex justify-cente ">
-        <button className="bg-[#0F3B45] text-white w-full py-2 rounded-full flex items-center gap-2 hover:bg-[#0c2e36] justify-center mt-4" onClick={confirmBooking}>
+      <div className="flex justify-center">
+        <button
+          className="bg-[#0F3B45] text-white w-full py-2 rounded-full flex items-center gap-2 hover:bg-[#0c2e36] justify-center mt-4"
+          onClick={confirmBooking}
+        >
           Confirm & Pay
         </button>
       </div>
-      </Link>
     </div>
   );
 }

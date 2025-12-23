@@ -8,6 +8,8 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import bgImage from "../assets/bg.webp";
 import { toast } from "react-hot-toast";
+const API_URL = import.meta.env.VITE_BOOKING_SERVICE_API_URL;
+import BookingSuccessfulModel from "../components/service/BookingSuccessfulModel";
 
 export default function CustomPackage() {
   // Booking details state
@@ -20,6 +22,7 @@ export default function CustomPackage() {
   const [adults, setAdults] = useState(0);
   const [children, setChildres] = useState(0);
   const [babies, setBabies] = useState(0);
+  const [specialPassengerNote, setSpecialPassengerNote] = useState("");
 
   // Trip data state
   const [startLocation, setStartLocation] = useState("");
@@ -39,6 +42,11 @@ export default function CustomPackage() {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedGuide, setSelectedGuide] = useState(null);
+
+  const [distance, setDistance] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // =============================
   // FUNCTIONS
@@ -93,7 +101,7 @@ export default function CustomPackage() {
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_GOOGLE_MAPS_API_URL}/maps/shortest-route`,
+        `${import.meta.env.VITE_GOOGLE_MAPS_API_URL}/api/maps/shortest-route`,
         {
           start: startLocation,
           end: endLocation,
@@ -111,7 +119,7 @@ export default function CustomPackage() {
     }
   };
 
-  const confirm_booking = () => {
+  const confirm_booking = async () => {
     const error = validateBeforeConfirm();
 
     if (error) {
@@ -142,6 +150,7 @@ export default function CustomPackage() {
           children,
           babies,
         },
+        specialPassengerNote,
       },
 
       tripDetails: {
@@ -154,8 +163,8 @@ export default function CustomPackage() {
       },
 
       routeDetails: {
-        distance: routeData?.distance,
-        duration: routeData?.duration,
+        distance: distance,
+        duration: duration,
         polyline: routeData?.polyline,
         costPerKm: cost_per_km,
         bookingPrice: booking_price,
@@ -192,6 +201,7 @@ export default function CustomPackage() {
       metadata: {
         createdAt: new Date().toISOString(),
         source: "CUSTOM_PACKAGE",
+        packageId: 1,
       },
     };
 
@@ -199,7 +209,24 @@ export default function CustomPackage() {
     console.log(bookingPayload);
     console.groupEnd();
 
-    toast.success("Booking confirmed successfully!");
+    try {
+      const response = await axios.post(
+        `${API_URL}/saveBooking`,
+        bookingPayload
+      );
+
+      console.log("✅ Booking saved:", response.data);
+      // toast.success("Booking confirmed successfully!");
+      setShowSuccessModal(true);
+    } catch (error) {
+      console.error("❌ Booking error:", error);
+
+      if (error.response?.status === 403) {
+        toast.error("403 Forbidden – backend is blocking this request");
+      } else {
+        toast.error("Booking failed. Please try again.");
+      }
+    }
   };
 
   const fetchPlaces = async () => {
@@ -271,6 +298,8 @@ export default function CustomPackage() {
               setChildres={setChildres}
               babies={babies}
               setBabies={setBabies}
+              specialPassengerNote={specialPassengerNote}
+              setSpecialPassengerNote={setSpecialPassengerNote}
             />
 
             <RouteTrip
@@ -310,6 +339,8 @@ export default function CustomPackage() {
               routeData={routeData}
               cost_per_km={cost_per_km}
               booking_price={booking_price}
+              setDistance={setDistance}
+              setDuration={setDuration}
               confirmBooking={confirm_booking}
             />
           </div>
@@ -381,6 +412,14 @@ export default function CustomPackage() {
           </div>
         </div>
       </div>
+       {/* SUCCESS MODAL */}
+      <BookingSuccessfulModel
+        open={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          window.location.href = "/dashboard";
+        }}
+      />
     </>
   );
 }

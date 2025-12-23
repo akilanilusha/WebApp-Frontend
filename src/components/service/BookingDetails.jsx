@@ -19,6 +19,8 @@ function BookingDetails({
   setChildres,
   babies,
   setBabies,
+  specialPassengerNote,
+  setSpecialPassengerNote
 }) {
   return (
     <div
@@ -109,6 +111,15 @@ function BookingDetails({
           onChange={(e) => setBabies(e.target.value)}
         />
       </div>
+      <textarea className="field-sizing-fixed w-full  bg-white text-gray-700
+          border border-gray-300
+          rounded-md px-4 py-3
+          focus:outline-none focus:border-gray-400
+          placeholder:text-gray-400
+          shadow-sm" rows="2" placeholder="Add a special note for yourself or any passenger."
+          value={specialPassengerNote}
+  onChange={(e) => setSpecialPassengerNote(e.target.value)}>
+      </textarea>
     </div>
   );
 }
