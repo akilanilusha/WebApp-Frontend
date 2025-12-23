@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^2.0.2",
+
+    "@paypal/react-paypal-js": "^8.9.2",
+
     "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.2.0",
     "@supabase/supabase-js": "^2.84.0",

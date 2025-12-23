@@ -271,7 +271,7 @@ const totalDurationMinutes = Math.floor(totalDur / 60);
           </div>
         )} */}
       </div>
-      <div className="flex justify-cente ">
+      <div className="flex justify-center">
         <button
           className="bg-[#0F3B45] text-white w-full py-2 rounded-full flex items-center gap-2 hover:bg-[#0c2e36] justify-center mt-4"
           onClick={confirmBooking}

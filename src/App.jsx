@@ -12,6 +12,7 @@ import PrivateRoute from "./route/PrivateRoute";
 import Dashboard from "./pages/Dashboard";
 import { Toaster } from "react-hot-toast";
 import WhatsappButton from "./components/WhatsappButton";
+import PaymentPage from "./pages/PaymentPage";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/login" element={<UserLogin />} />
         <Route path="/register" element={<UserRegister />} />
         <Route path="/faq" element={<Faq />} />
+        <Route path="/payment" element={<PaymentPage />} />
 
         <Route
           path="/dashboard"
