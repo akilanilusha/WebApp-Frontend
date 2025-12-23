@@ -6,6 +6,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-hot-toast";
 
+
 export default function UserLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,7 +37,7 @@ export default function UserLogin() {
 
     await toast
       .promise(
-        axios.post("http://localhost:8084/api/v1/tourists/login", {
+        axios.post("http://localhost:8082/api/v1/tourists/login", {
           email,
           password,
         }),
