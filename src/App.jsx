@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import { Toaster } from "react-hot-toast";
 import WhatsappButton from "./components/WhatsappButton";
 import PaymentPage from "./pages/PaymentPage";
+import FeaturedTours from "./pages/FeaturedTours";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route path="/FeaturedTours" element={<FeaturedTours />} />
       </Routes>
       <WhatsappButton />
     </BrowserRouter>

@@ -5,7 +5,7 @@ import App from './App.jsx'
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+<StrictMode>
     <PayPalScriptProvider
     options={{ "client-id": "AaCEloe3iX1RooqhEV-b5KnHcpmOTLKI1hIpPvnGwZseIx1KiwtnCof-hnpZBjYxEtpyGrtYXeb5brQw" }}
   >
