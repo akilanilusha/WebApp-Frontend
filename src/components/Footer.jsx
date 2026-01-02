@@ -46,7 +46,7 @@ function Footer(){
                 </div>
             </div>
 
-            <div className="w-full h-10 bg-yellow-400 bg-cover bg-center text-primary text-[10px] flex justify-center items-center" style={{backgroundImage: `url(${foot})`}}>Copyright 2025 Tourm. All Rights Reserved.</div>
+            <div className="w-full h-14 bg-yellow-400 bg-cover bg-center text-primary text-[14px] flex justify-center items-center" style={{backgroundImage: `url(${foot})`}}>Copyright 2025 Tourm. All Rights Reserved.</div>
         </div>
     )
 }

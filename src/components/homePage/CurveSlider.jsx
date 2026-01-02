@@ -8,9 +8,8 @@ import Card1 from "./Card1"; // adjust path if your Guide file is elsewhere
 
 // images (use your own paths - keep exact filenames + extensions)
 import guideImg from "../../assets/homepage/hero.jpg";
-import articles from "../../assets/homepage/articles.jpg"
-import anu from "../../assets/homepage/Featured/anuradapura.jpg"
-
+import articles from "../../assets/homepage/articles.jpg";
+import anu from "../../assets/homepage/Featured/anuradapura.jpg";
 
 const guides = [
   { id: 1, img: articles, name: "Milindu Gomes" },
@@ -19,8 +18,9 @@ const guides = [
   { id: 4, img: articles, name: "Milindu Gomes" },
   { id: 5, img: articles, name: "Milindu Gomes" },
   { id: 6, img: articles, name: "Milindu Gomes" },
-  
-  
+  { id: 7, img: articles, name: "Milindu Gomes" },
+  { id: 8, img: articles, name: "Milindu Gomes" },
+  { id: 9, img: articles, name: "Milindu Gomes" },
 ];
 
 export default function CurveSlider() {
@@ -49,9 +49,6 @@ export default function CurveSlider() {
             spaceBetween: 30,
           },
         }}
-
-
-
         autoplay={{
           delay: 2500,
           disableOnInteraction: false,

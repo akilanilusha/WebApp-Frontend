@@ -9,6 +9,8 @@ import eve from '../../assets/recentgallery/eve.jpg'
 import build from '../../assets/recentgallery/building.jpg'
 
 function RecentGallery(){
+
+    const images = [img1, img2, img3, img4, img7, eve, build, hero2];
     return(
           
 
@@ -20,43 +22,43 @@ function RecentGallery(){
                 {/* Big wide image (top left) */}
                 <div
                     className="w-full col-span-2 h-[260px] rounded-4xl drop-shadow-xl bg-cover bg-center bg-no-repeat bg-yellow-300"
-                    style={{ backgroundImage: `url(${img1})` }}
+                    style={{ backgroundImage: `url(${images[0]})` }}
                 ></div>
 
                 {/* Normal image (top middle) */}
                 <div
                     className="w-full col-span-2 sm:col-span-1 h-[260px] rounded-4xl drop-shadow-xl bg-cover bg-center bg-no-repeat bg-yellow-300"
-                    style={{ backgroundImage: `url(${eve})` }}
+                    style={{ backgroundImage: `url(${images[5]})` }}
                 ></div>
 
                 {/* Tall center image (2 rows) */}
                 <div
                     className="w-full col-span-2  h-[260px] sm:col-span-1 sm:row-span-2 sm:h-[540px] rounded-4xl drop-shadow-xl bg-cover bg-center bg-no-repeat bg-purple-300"
-                    style={{ backgroundImage: `url(${hero2})` }}
+                    style={{ backgroundImage: `url(${images[7]})` }}
                 ></div>
 
                 {/* Normal image (top right) */}
                 <div
                     className="col-span-2 sm:col-span-1 h-[260px] rounded-4xl drop-shadow-xl bg-cover bg-center bg-no-repeat bg-yellow-300 hidden md:block"
-                    style={{ backgroundImage: `url(${img2})` }}
+                    style={{ backgroundImage: `url(${images[1]})` }}
                 ></div>
 
                 {/* Big wide image (bottom left) */}
                 <div
                     className="col-span-2 h-[260px] rounded-4xl drop-shadow-xl bg-cover bg-center bg-no-repeat bg-yellow-300 hidden md:block"
-                    style={{ backgroundImage: `url(${img3})` }}
+                    style={{ backgroundImage: `url(${images[2]})` }}
                 ></div>
 
                 {/* Normal image (bottom middle) */}
                 <div
                     className="col-span-2 sm:col-span-1 h-[260px] rounded-4xl drop-shadow-xl bg-cover bg-center bg-no-repeat bg-yellow-300 hidden md:block"
-                    style={{ backgroundImage: `url(${img4})` }}
+                    style={{ backgroundImage: `url(${images[3]})` }}
                 ></div>
 
                 {/* Normal image (bottom right) */}
                 <div
                     className="col-span-2 sm:col-span-1 h-[260px] rounded-4xl drop-shadow-xl bg-cover bg-center bg-no-repeat bg-yellow-300 hidden md:block"
-                    style={{ backgroundImage: `url(${img7})` }}
+                    style={{ backgroundImage: `url(${images[4]})` }}
                 ></div>
                 </div>
           

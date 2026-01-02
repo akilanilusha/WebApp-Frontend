@@ -9,6 +9,7 @@ import Reviews from "../components/homePage/Reviews";
 import Newsletter from "../components/homePage/Newsletter";
 import Hero from "../components/homePage/Hero";
 import Logo from "../components/homePage/logo";
+import CustomerComments from "../components/homePage/TestimonialCarousel";
 
 
 function Home(){
@@ -38,6 +39,8 @@ function Home(){
 
             
             <Newsletter />
+
+            
 
             
             <section className="w-full h-2 flex justify-center items-center">
