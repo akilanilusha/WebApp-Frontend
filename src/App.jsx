@@ -12,9 +12,8 @@ import PrivateRoute from "./route/PrivateRoute";
 import Dashboard from "./pages/Dashboard";
 import { Toaster } from "react-hot-toast";
 import WhatsappButton from "./components/WhatsappButton";
-import PaymentPage from "./pages/PaymentPage";
 import FeaturedTours from "./pages/FeaturedTours";
-
+import PaymentPage from "./pages/PaymentPage";
 function App() {
   return (
     <BrowserRouter>
@@ -29,7 +28,8 @@ function App() {
         <Route path="/login" element={<UserLogin />} />
         <Route path="/register" element={<UserRegister />} />
         <Route path="/faq" element={<Faq />} />
-        <Route path="/payment" element={<PaymentPage />} />
+        {/* <Route path="/payment" element={<PaymentPage />} /> */}
+        <Route path="/payment/:ref" element={<PaymentPage />} />
 
         <Route
           path="/dashboard"
@@ -46,6 +46,4 @@ function App() {
   );
 }
 
-export default App
-
-
+export default App;
