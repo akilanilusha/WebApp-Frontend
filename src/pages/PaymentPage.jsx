@@ -1,66 +1,98 @@
-import { PayPalButtons } from "@paypal/react-paypal-js";
-
-const totalAmount = 10; 
+import { useEffect, useRef, useState } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
 
 export default function PaymentPage() {
+  const { ref } = useParams();
+  const [searchParams] = useSearchParams();
+
+  const amount = searchParams.get("amount");
+  const currency = searchParams.get("currency");
+
+  const [hash, setHash] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const orderIdRef = useRef(null);
+
+  if (!orderIdRef.current) {
+    orderIdRef.current = `${ref}-${Date.now()}`;
+  }
+
+  const formattedAmount = Number(amount).toFixed(2);
+
+  useEffect(() => {
+    prepareHash();
+    // eslint-disable-next-line
+  }, []);
+
+  async function prepareHash() {
+    const response = await fetch(
+      `http://localhost:8087/paymentcontroller/getHash` +
+        `?orderId=${orderIdRef.current}&amount=${formattedAmount}&currency=${currency}`
+    );
+
+    const hashValue = await response.text();
+    setHash(hashValue);
+    setLoading(false);
+  }
+
+  function submitPayment() {
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = "https://sandbox.payhere.lk/pay/checkout";
+
+    const fields = {
+      merchant_id: "1233436",
+      return_url: "http://localhost:5173/payment-success",
+      cancel_url: "http://localhost:5173/payment-cancel",
+      notify_url: "http://localhost:8087/payment-notify",
+
+      order_id: orderIdRef.current,
+      items: "TripGenix Tour Package",
+      currency: currency,
+      amount: formattedAmount,
+
+      first_name: "Saman",
+      last_name: "Perera",
+      email: "samanp@gmail.com",
+      phone: "0771234567",
+      address: "No.1, Galle Road",
+      city: "Colombo",
+      country: "Sri Lanka",
+
+      hash: hash,
+    };
+
+    Object.entries(fields).forEach(([key, value]) => {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = key;
+      input.value = value;
+      form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+  }
+
+  if (loading) {
+    return <div className="p-10 text-center">Preparing payment…</div>;
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-blue-150 to-blue-200 p-6">
-      <div className="backdrop-blur-xl bg-white/60 shadow-2xl border border-white/30 rounded-3xl p-12 w-full max-w-lg min-h-[550px] animate-fadeIn">
+    <div className="max-w-xl mx-auto p-6 bg-white rounded-xl shadow">
+      <h2 className="text-xl font-semibold mb-4 text-center">
+        Confirm Payment
+      </h2>
 
+      <p><b>Order:</b> {orderIdRef.current}</p>
+      <p><b>Amount:</b> LKR {formattedAmount}</p>
 
-        <h1 className="text-4xl font-extrabold text-center mb-16 tracking-wide drop-shadow-sm">
-        <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-transparent bg-clip-text">
-            Secure Checkout
-        </span>
-        <span className="ml-2">💳</span>
-        </h1>
-
-
-        {/* Product Summary */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-800 mb-8">
-            Tour Package
-          </h2>
-
-          <div className="flex justify-between items-center bg-white/70 backdrop-blur-md p-5 rounded-xl shadow-lg border border-gray-200 hover:shadow-2xl transition-all duration-300">
-            <span className="text-gray-700 text-lg">Total Amount</span>
-            <span className="text-2xl font-semibold text-blue-700">${totalAmount}</span>
-          </div>
-        </div>
-
-        {/* PayPal Button */}
-        <div className="mt-auto pt-9">
-          <PayPalButtons
-            style={{
-              layout: "vertical",
-              shape: "rect",
-              height: 45,
-            }}
-            createOrder={(data, actions) => {
-              return actions.order.create({
-                purchase_units: [
-                  {
-                    amount: { 
-                      currency_code:"USD",
-                      value: totalAmount.toString()
-                   },
-                  },
-                ],
-              });
-            }}
-            onApprove={(data, actions) => {
-              return actions.order.capture().then((details) => {
-                alert("Payment Successful! Thank you, " + details.payer.name.given_name);
-              });
-            }}
-            onError={(err) => {
-              console.error(err);
-              alert("Payment failed. Please try again.");
-            }}
-          />
-        </div>
-
-      </div>
+      <button
+        onClick={submitPayment}
+        className="mt-6 w-full bg-blue-600 text-white py-3 rounded-lg"
+      >
+        💳 Pay Now
+      </button>
     </div>
   );
 }
