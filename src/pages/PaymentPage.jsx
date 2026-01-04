@@ -67,8 +67,9 @@ export default function PaymentPage() {
       input.type = "hidden";
       input.name = key;
       input.value = value;
-      form.appendChild(input);
+      form.appendChild(input); 
     });
+    //test
 
     document.body.appendChild(form);
     form.submit();
