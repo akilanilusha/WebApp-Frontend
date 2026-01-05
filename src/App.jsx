@@ -15,6 +15,8 @@ import WhatsappButton from "./components/WhatsappButton";
 import FeaturedTours from "./pages/FeaturedTours";
 import PaymentPage from "./pages/PaymentPage";
 import About from '../src/pages/About'
+import Profile from '../src/pages/profile'
+
 
 function App() {
   return (
@@ -27,7 +29,7 @@ function App() {
         <Route path="/Booking" element={<Booking />} />
         <Route path="/Contact" element={<Contact />} />
                     <Route path="/About" element={<About />} />
-
+<Route path="/Profile" element={<Profile />} />
         <Route path="/CustomPackage" element={<CustomPackage />} />
         <Route path="/login" element={<UserLogin />} />
         <Route path="/register" element={<UserRegister />} />
