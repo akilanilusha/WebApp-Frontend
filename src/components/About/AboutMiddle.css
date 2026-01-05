@@ -1,0 +1,260 @@
+/* MAIN ABOUT AREA */
+.about-area {
+  padding: 100px 0;
+  position: relative;
+}
+
+.about-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 60px;
+  padding: 0 120px;
+}
+
+/* LEFT IMAGE GROUP */
+.about-left {
+  width: 55%;
+}
+
+.img-box {
+  position: relative;
+}
+
+.img1 img,
+.img2 img,
+.img3 img {
+  border-radius: 20px;
+  width: 100%;
+  object-fit: cover;
+
+  /* ⭐ ADDED WHITE BORDER */
+  border: 4.8px solid #fff;
+  box-sizing: border-box;
+}
+
+/* First image */
+.img1 img {
+  display: inline;
+  max-width: 100%;
+  width: 503.2px;
+  height: 382.125px;
+  border-radius: 24px;
+  transform: matrix(1, 0, 0, 1, 13.8437, 0);
+}
+
+/* Second image */
+.img2 img {
+  display: inline;
+  max-width: 100%;
+  width: 503.2px;
+  height: 589.338px;
+  border-radius: 24px;
+}
+
+/* Third floating image */
+.img3 {
+  position: relative;
+  z-index: 3;
+  display: block;
+  width: 503.2px;
+  height: 382.125px;
+  margin-top: 20px;
+  animation: movingX 10s linear infinite;
+  transform: matrix(1, 0, 0, 1, 13.8437, 0);
+}
+
+/* Animation keyframes */
+@keyframes movingX {
+  0% { transform: translateX(0px); }
+  50% { transform: translateX(15px); }
+  100% { transform: translateX(0px); }
+}
+
+
+/* RIGHT SIDE */
+.about-right {
+  width: 45%;
+}
+
+.sub-title {
+  font-size: 30px;
+  color: #0a9db9;
+  font-weight: 600;
+}
+
+.sec-title {
+  font-size: 42px;
+  margin-top: 10px;
+  margin-bottom: 25px;
+  color: #093b43;
+  font-weight: 700;
+}
+
+.about-right p {
+  font-size: 16px;
+  color: #5c6668;
+  line-height: 1.7;
+  margin-bottom: 18px;
+}
+
+/* ABOUT ITEMS */
+.about-item-wrap {
+  margin-top: 25px;
+}
+
+.about-item {
+  display: flex;
+  align-items: start;
+  margin-bottom: 18px;
+}
+
+
+/* -------------------------------------- */
+/* ⭐ CIRCLE + ICON + FLIP EFFECT SECTION */
+/* -------------------------------------- */
+
+/* Circle background */
+.about-item-img {
+  width: 70px;
+  height: 70px;
+  background: #e8f6fb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+}
+
+/* ICON STYLING */
+.about-item-img img {
+  width: 28px;
+  height: 28px;
+  transition: transform 0.4s ease;
+  transform-style: preserve-3d;
+
+  filter: brightness(0) saturate(100%) invert(47%) sepia(98%) saturate(700%)
+          hue-rotate(168deg) brightness(95%) contrast(90%);
+}
+
+/* ICON FLIP */
+.about-item-img img:hover {
+  transform: rotateY(180deg);
+}
+
+
+/* CONTENT INSIDE ABOUT ITEM */
+.about-item-content h5 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.about-item-content p {
+  margin: 0;
+  color: #5c6668;
+}
+
+/* BUTTON */
+.about-button {
+  margin-top: 30px;
+}
+
+.contact-btn {
+  padding: 12px 30px;
+  background-color: #0a9db9;
+  color: white;
+  border-radius: 30px;
+  text-decoration: none;
+  font-size: 16px;
+  transition: 0.3s ease;
+}
+
+.contact-btn:hover {
+  background-color: #087f96;
+}
+
+
+
+/* WRAPPER */
+.about-images {
+  position: relative;
+  width: 100%;
+  height: 650px;
+}
+
+/* COMMON IMAGE STYLE */
+.about-img {
+  width: 75%;
+  border-radius: 24px;
+  object-fit: cover;
+  position: absolute;
+  left: 0;
+
+  /* ⭐ ALSO ADDING WHITE BORDER HERE */
+  border: 4.8px solid #fff;
+  box-sizing: border-box;
+}
+
+/* IMG1 */
+.img1-box {
+  z-index: 3;
+}
+.img1 {
+  top: 0;
+}
+
+/* IMG2 */
+.img2-box {
+  z-index: 2;
+}
+.img2 {
+  top: 150px;
+  left: 120px;
+}
+
+/* IMG3 */
+.img3-box {
+  z-index: 1;
+}
+.img3 {
+  top: 350px;
+  left: 70px;
+}
+
+/* FLOAT ANIMATION */
+@keyframes movingX {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(15px); }
+  100% { transform: translateX(0); }
+}
+
+.movingX {
+  animation: movingX 6s ease-in-out infinite;
+}
+
+/* Layer 1 (bottom) */
+.img1 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+/* Layer 2 (middle — overlaps img1) */
+.img2 {
+  position: absolute;
+  top: 120px;    /* adjust this until it looks exactly right */
+  left: 80px;    /* adjust as needed */
+  z-index: 2;
+}
+
+/* Layer 3 (top — overlaps img2) */
+.img3 {
+  position: absolute;
+  top: 280px;    /* adjust slightly to match your screenshot */
+  left: 40px;
+  z-index: 3;
+  animation: movingX 10s linear infinite;
+}
+

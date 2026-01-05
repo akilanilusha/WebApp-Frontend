@@ -14,6 +14,8 @@ import { Toaster } from "react-hot-toast";
 import WhatsappButton from "./components/WhatsappButton";
 import FeaturedTours from "./pages/FeaturedTours";
 import PaymentPage from "./pages/PaymentPage";
+import About from '../src/pages/About'
+
 function App() {
   return (
     <BrowserRouter>
@@ -24,6 +26,8 @@ function App() {
         <Route path="/Home" element={<Home />} />
         <Route path="/Booking" element={<Booking />} />
         <Route path="/Contact" element={<Contact />} />
+                    <Route path="/About" element={<About />} />
+
         <Route path="/CustomPackage" element={<CustomPackage />} />
         <Route path="/login" element={<UserLogin />} />
         <Route path="/register" element={<UserRegister />} />
