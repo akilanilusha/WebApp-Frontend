@@ -14,12 +14,12 @@ export default function BookingSuccessfulModel({ open, onClose }) {
 
         {/* Title */}
         <h2 className="text-xl font-semibold mb-2">
-          Payment successful
+          Booking successful
         </h2>
 
         {/* Description */}
         <p className="text-gray-500 text-sm mb-6">
-          Your booking has been confirmed successfully.
+          Your booking has been confirmed successfully. Thank you for choosing our service!
         </p>
 
         {/* Button */}

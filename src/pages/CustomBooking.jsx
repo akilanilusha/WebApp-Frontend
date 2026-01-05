@@ -10,10 +10,13 @@ import bgImage from "../assets/bg.webp";
 import { toast } from "react-hot-toast";
 const API_URL = import.meta.env.VITE_BOOKING_SERVICE_API_URL;
 import BookingSuccessfulModel from "../components/service/BookingSuccessfulModel";
+import e from "cors";
 
 export default function CustomPackage() {
   // Booking details state
   const [nameOfBooker, setNameOfBooker] = useState("");
+  const [emailAddress, setEmailAddress] = useState("");
+  const [bookerPhone, setBookerPhone] = useState("");
   const [passportNumber, setPassportNumber] = useState("");
   const [arrivalDateTime, setArrivalDateTime] = useState("");
   const [departureDateTime, setDepartureDateTime] = useState("");
@@ -45,6 +48,7 @@ export default function CustomPackage() {
 
   const [distance, setDistance] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [totalCost,setTotalCost] = useState(0);
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
@@ -54,6 +58,8 @@ export default function CustomPackage() {
 
   const validateBeforeConfirm = () => {
     if (!nameOfBooker) return "Name is required.";
+    if (!emailAddress) return "Email address is required.";
+    if (!bookerPhone) return "Phone number is required.";
     if (!passportNumber) return "Passport number is required.";
     if (!arrivalDateTime) return "Arrival date/time is required.";
     if (!departureDateTime) return "Departure date/time is required.";
@@ -78,6 +84,8 @@ export default function CustomPackage() {
     const tripData = {
       bookingDetails: {
         nameOfBooker,
+        bookerEmail: emailAddress,
+        bookerPhone,
         passportNumber,
         arrivalDateTime,
         departureDateTime,
@@ -140,6 +148,8 @@ export default function CustomPackage() {
 
       bookingDetails: {
         nameOfBooker,
+        bookerEmail: emailAddress,
+        bookerPhone,
         passportNumber,
         arrivalDateTime,
         departureDateTime,
@@ -167,7 +177,7 @@ export default function CustomPackage() {
         duration: duration,
         polyline: routeData?.polyline,
         costPerKm: cost_per_km,
-        bookingPrice: booking_price,
+        bookingPrice: totalCost,
       },
       resources: {
         vehicle: selectedVehicle
@@ -205,9 +215,9 @@ export default function CustomPackage() {
       },
     };
 
-    console.group("📦 Booking Payload");
-    console.log(bookingPayload);
-    console.groupEnd();
+    // console.group("📦 Booking Payload");
+    // console.log(bookingPayload);
+    // console.groupEnd();
 
     try {
       const response = await axios.post(
@@ -216,7 +226,7 @@ export default function CustomPackage() {
       );
 
       console.log("✅ Booking saved:", response.data);
-      // toast.success("Booking confirmed successfully!");
+      toast.success("Booking successfully!");
       setShowSuccessModal(true);
     } catch (error) {
       console.error("❌ Booking error:", error);
@@ -252,9 +262,6 @@ export default function CustomPackage() {
     fetchPlaces();
   }, [selectedDistrict]);
 
-  // =============================
-  // UI
-  // =============================
   return (
     <>
       <div
@@ -282,6 +289,10 @@ export default function CustomPackage() {
             <BookingDetails
               nameOfBooker={nameOfBooker}
               setNameOfBooker={setNameOfBooker}
+              emailAddress={emailAddress}
+              setEmailAddress={setEmailAddress}
+              bookerPhone={bookerPhone}
+              setBookerPhone={setBookerPhone}
               passportNumber={passportNumber}
               setPassportNumber={setPassportNumber}
               arrivalDateTime={arrivalDateTime}
@@ -342,6 +353,8 @@ export default function CustomPackage() {
               setDistance={setDistance}
               setDuration={setDuration}
               confirmBooking={confirm_booking}
+              totalCost={totalCost}
+              setTotalCost={setTotalCost}
             />
           </div>
         </div>
