@@ -14,7 +14,7 @@ export default function GooglePlaceInput({
     const autocomplete = new window.google.maps.places.Autocomplete(
       inputRef.current,
       {
-        types: ["geocode"],
+        // types: ["geocode"],
         componentRestrictions: { country: "lk" }, // Sri Lanka (optional)
       }
     );

@@ -69,7 +69,6 @@ export default function PaymentPage() {
       input.value = value;
       form.appendChild(input); 
     });
-    //test
 
     document.body.appendChild(form);
     form.submit();

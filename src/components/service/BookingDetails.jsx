@@ -3,6 +3,10 @@ import InputField from "../InputField";
 function BookingDetails({
   nameOfBooker,
   setNameOfBooker,
+  emailAddress,
+  setEmailAddress,
+  bookerPhone,
+  setBookerPhone,
   passportNumber,
   setPassportNumber,
   arrivalDateTime,
@@ -20,7 +24,7 @@ function BookingDetails({
   babies,
   setBabies,
   specialPassengerNote,
-  setSpecialPassengerNote
+  setSpecialPassengerNote,
 }) {
   return (
     <div
@@ -45,7 +49,16 @@ function BookingDetails({
           value={nameOfBooker}
           onChange={(e) => setNameOfBooker(e.target.value)}
         />
-
+        <InputField
+          label="Email Address"
+          value={emailAddress}
+          onChange={(e) => setEmailAddress(e.target.value)}
+        />
+         <InputField
+          label="Whatsapp Phone Number"
+          value={bookerPhone}
+          onChange={(e) => setBookerPhone(e.target.value)}
+        />
         {/* Passport Number */}
         <InputField
           label="Passport Number"
@@ -111,15 +124,18 @@ function BookingDetails({
           onChange={(e) => setBabies(e.target.value)}
         />
       </div>
-      <textarea className="field-sizing-fixed w-full  bg-white text-gray-700
+      <textarea
+        className="field-sizing-fixed w-full  bg-white text-gray-700
           border border-gray-300
           rounded-md px-4 py-3
           focus:outline-none focus:border-gray-400
           placeholder:text-gray-400
-          shadow-sm" rows="2" placeholder="Add a special note for yourself or any passenger."
-          value={specialPassengerNote}
-  onChange={(e) => setSpecialPassengerNote(e.target.value)}>
-      </textarea>
+          shadow-sm"
+        rows="2"
+        placeholder="Add a special note for yourself or any passenger."
+        value={specialPassengerNote}
+        onChange={(e) => setSpecialPassengerNote(e.target.value)}
+      ></textarea>
     </div>
   );
 }
