@@ -8,12 +8,16 @@ export default defineConfig({
     theme: {
     screens: {
       esm:'320px',
-      sm: '480px',   // your custom mobile breakpoint
+      sm: '480px',   
       md: '768px',
       lg: '1024px',
       xl: '1280px'
     },
   },},
-  plugins: [react(), tailwindcss(),]
+  plugins: [react(), tailwindcss(),],
+  server: {
+    port: 5173,      
+    strictPort: true
+  }
   
 })
