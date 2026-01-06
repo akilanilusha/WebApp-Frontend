@@ -51,6 +51,7 @@ function BookingDetails({
         />
         <InputField
           label="Email Address"
+          type="email"
           value={emailAddress}
           onChange={(e) => setEmailAddress(e.target.value)}
         />

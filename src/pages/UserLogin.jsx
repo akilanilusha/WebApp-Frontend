@@ -56,7 +56,7 @@ export default function UserLogin() {
             localStorage.setItem("role", decoded.role);
             window.dispatchEvent(new Event("auth-change"));
 
-            navigator("/dashboard");
+            navigator("/Profile");
             return "Login successful! 👋";
           },
           error: "Invalid email or password",

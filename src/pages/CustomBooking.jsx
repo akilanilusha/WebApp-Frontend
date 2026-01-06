@@ -48,7 +48,7 @@ export default function CustomPackage() {
 
   const [distance, setDistance] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [totalCost,setTotalCost] = useState(0);
+  const [totalCost, setTotalCost] = useState(0);
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
@@ -58,7 +58,10 @@ export default function CustomPackage() {
 
   const validateBeforeConfirm = () => {
     if (!nameOfBooker) return "Name is required.";
-    if (!emailAddress) return "Email address is required.";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailAddress)) {
+      return "Please enter a valid email address.";
+    }
     if (!bookerPhone) return "Phone number is required.";
     if (!passportNumber) return "Passport number is required.";
     if (!arrivalDateTime) return "Arrival date/time is required.";
@@ -425,7 +428,7 @@ export default function CustomPackage() {
           </div>
         </div>
       </div>
-       {/* SUCCESS MODAL */}
+      {/* SUCCESS MODAL */}
       <BookingSuccessfulModel
         open={showSuccessModal}
         onClose={() => {
