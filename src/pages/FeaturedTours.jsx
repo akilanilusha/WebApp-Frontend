@@ -30,14 +30,13 @@ export default function FeaturedTours() {
   const goToNext = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
 
   
-  const [filters, setFilters] = useState({
+  const [filters,  setFilters] = useState({
     search: "",
     maxPrice: 5000,
     duration: "Any Duration", 
     vehicle: "All Vehicles",
     guide: "Any Guide",
     popularOnly: false,
-    familyFriendly: false,
   });
 
   // Fetch packages
@@ -111,7 +110,6 @@ export default function FeaturedTours() {
         vehicle: "All Vehicles",
         guide: "Any Guide",
         popularOnly: false,
-        familyFriendly: false,
       });
     };
 

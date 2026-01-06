@@ -3,7 +3,7 @@ import bgImage from "../assets/ContactPage.jpg";
 import { useState } from "react";
 
 
-const CONTACT_API_URL = "http://localhost:8080/api/contact"; 
+const CONTACT_API_URL = "http://localhost:8088/email/api/v1/send";
 const GOOGLE_MAP_EMBED_URL = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3967.653457199121!2d80.5284093!3d6.0592815!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae624e75d5b78a9%3A0xcb1b5e3a34a17966!2sMatara%2081000!5e0!3m2!1sen!2slk!4v1703058882042!5m2!1sen!2slk";
 
 function ContactUs(){
@@ -28,49 +28,57 @@ const [formData, setFormData] = useState({
         [e.target.name]: e.target.value
         });
     };
-    const handleSubmit = async (e) => {
-    e.preventDefault();
-    setStatusMessage("");
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setStatusMessage("");
 
-    if (!formData.fullName || !formData.email || !formData.message) {
-        setStatusMessage("❌ Please fill all required fields (Name, Email, Message).");
-        return;
-    }
+  if (!formData.fullName || !formData.email || !formData.message) {
+    setStatusMessage(" Please fill all required fields.");
+    return;
+  }
 
-    if (!isValidEmail(formData.email)) {
-        setStatusMessage("❌ Please enter a valid email address.");
-        return;
-    }
+  if (!isValidEmail(formData.email)) {
+    setStatusMessage(" Please enter a valid email address.");
+    return;
+  }
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
-        const res = await fetch(CONTACT_API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, phone: formData.phone || "" }), 
+  const emailPayload = {
+    recipient: formData.email,
+    subject: "Thank you for contacting Unicorn Tours",
+    msgBody: `
+      <h2>Hello ${formData.fullName},</h2>
+      <p>Thank you for contacting <b>Unicorn Tours</b>.</p>
+      <p><b>Your Message:</b></p>
+      <p>${formData.message}</p>
+      <hr/>
+      <p><b>Contact Details</b></p>
+      <p>Email: ${formData.email}</p>
+      <p>Phone: ${formData.phone || "Not provided"}</p>
+      <br/>
+      <p>— Unicorn Tours Team</p>
+    `
+  };
+
+  try {
+    const res = await fetch(CONTACT_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(emailPayload),
     });
 
-    if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ message: res.statusText }));
-        throw new Error(errorData.message || "Failed with status: " + res.status);
-      }
+    if (!res.ok) throw new Error("Failed to send email");
 
-    setStatusMessage("✅ Message sent successfully! We will get back to you soon.");
+    setStatusMessage("✅ Email sent successfully!");
+    setFormData({ fullName: "", email: "", phone: "", message: "" });
 
-    setFormData({
-        fullName: "",
-        email: "",
-        phone: "",
-        message: "",
-    });
-
-    } catch (err) {
-        console.error("Contact Form Submission Error:", err);
-        setStatusMessage("❌ Failed to send message. Please try again later.");
-    } finally {
-        setLoading(false);
-    }
+  } catch (err) {
+    console.error(err);
+    setStatusMessage("Failed to send email.");
+  } finally {
+    setLoading(false);
+  }
 };
 
 return(
