@@ -69,15 +69,11 @@ export default function RouteTrip({
   const [vehicles, setVehicles] = useState([]);
   const [drivers, setDrivers] = useState([]); // NEW
 
-  // ====================
   // LOAD ALL DRIVERS
-  // ====================
   useEffect(() => {
     async function loadDrivers() {
       try {
-        const res = await axios.get(
-          `${DRIVER_API}`
-        );
+        const res = await axios.get(`${DRIVER_API}`);
         console.log("Fetched Drivers:", res);
         setDrivers(res.data);
       } catch (error) {
@@ -87,9 +83,7 @@ export default function RouteTrip({
     loadDrivers();
   }, []);
 
-  // ====================
   // LOAD VEHICLES
-  // ====================
   async function loadVehicles() {
     try {
       const response = await axios.get(
@@ -119,13 +113,20 @@ export default function RouteTrip({
     setShowDriverModal(false);
   };
 
-  // ====================
   // FILTER DRIVERS BY SELECTED VEHICLE
-  // ====================
-  const filteredDrivers = selectedVehicle?.vehicleId
-    ? drivers.filter((d) =>
-        d.selectedVehicleCategories.includes(selectedVehicle.vehicleId)
-      )
+  const filteredDrivers = selectedVehicle
+    ? drivers.filter((driver) => {
+        const vehicleCategory = Number(selectedVehicle.type); // category
+        const vehicleId = selectedVehicle.vehicleId; // specific vehicle
+
+        const matchByCategory =
+          driver.selectedVehicleCategories?.includes(vehicleCategory);
+
+        const matchByVehicleNumber =
+          driver.selectedVehicleByNumber?.includes(vehicleId);
+
+        return matchByCategory || matchByVehicleNumber;
+      })
     : [];
 
   return (
@@ -154,7 +155,6 @@ export default function RouteTrip({
           value={endLocation}
           onChange={setEndLocation}
         />
-
         <div className="sm:col-span-2 lg:col-span-1 row-span-2">
           <DynamicList
             title="Add Destination"
@@ -162,7 +162,6 @@ export default function RouteTrip({
             setDestinations={setDestinations}
           />
         </div>
-
         <InputField
           label="Start Date"
           type="date"

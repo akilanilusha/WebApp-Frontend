@@ -7,8 +7,8 @@ export default function AboutHero() {
       <img src={oceanimg} alt="ocean" />
     
       <div className="hero-content">
-        <h1>About Tourm</h1>
-        <p>Home → About Tourm</p>
+        <h1>About TRIPGENIX</h1>
+        <p>Home → About TRIPGENIX</p>
       </div>
     </div>
 

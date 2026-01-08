@@ -21,7 +21,7 @@ export default function Dashboard() {
 <div className="dashboard-header">
 
   <div className="dashboard-greeting">
-    <h2>Hey Jane,</h2>
+    <h2>Hey Lihini,</h2>
     <p>
       {new Date().toLocaleDateString("en-GB", {
         weekday: "long",
