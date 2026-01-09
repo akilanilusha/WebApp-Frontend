@@ -61,6 +61,7 @@ export default function RouteTrip({
   setSelectedDriver,
   selectedGuide,
   setSelectedGuide,
+  passengerCount
 }) {
   const [showVehicleModal, setShowVehicleModal] = useState(false);
   const [showDriverModal, setShowDriverModal] = useState(false);
@@ -229,7 +230,16 @@ export default function RouteTrip({
           vehicles={vehicles}
           onClose={() => setShowVehicleModal(false)}
           onSelect={handleVehicleSelect}
+          passengerCount={passengerCount}
         />
+
+        // <VehicleModal
+        //   vehicles={vehicles}
+        //   passengerCount={passengerCount}
+        //   selectedVehicle={selectedVehicle}
+        //   onSelect={(v) => setSelectedVehicle(v)}
+        //   onClose={() => setShowVehicleModal(false)}
+        // />
       )}
 
       {showDriverModal && (

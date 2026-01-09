@@ -47,7 +47,7 @@ function App() {
         />
         <Route path="/FeaturedTours" element={<FeaturedTours />} />
       </Routes>
-      <WhatsappButton />
+      {/* <WhatsappButton /> */}
     </BrowserRouter>
   );
 }

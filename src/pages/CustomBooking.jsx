@@ -10,7 +10,6 @@ import bgImage from "../assets/bg.webp";
 import { toast } from "react-hot-toast";
 const API_URL = import.meta.env.VITE_BOOKING_SERVICE_API_URL;
 import BookingSuccessfulModel from "../components/service/BookingSuccessfulModel";
-import e from "cors";
 
 export default function CustomPackage() {
   // Booking details state
@@ -52,6 +51,7 @@ export default function CustomPackage() {
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+  const passengerCount = parseInt(adults) + parseInt(children) + parseInt(babies);
   // =============================
   // FUNCTIONS
   // =============================
@@ -338,6 +338,7 @@ export default function CustomPackage() {
               selectedGuide={selectedGuide}
               setSelectedGuide={setSelectedGuide}
               submit={submitTrip}
+              passengerCount={passengerCount}
             />
           </div>
 

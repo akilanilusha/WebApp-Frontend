@@ -1,5 +1,5 @@
 import axios from "axios";
-import React from "react";
+import React, { useMemo } from "react";
 
 // IMAGE CAROUSEL
 function ImageCarousel({ images }) {
@@ -63,11 +63,11 @@ function ImageCarousel({ images }) {
 }
 
 // MAIN MODAL COMPONENT
-function VehicleModal({ vehicles, onClose, onSelect }) {
+function VehicleModal({ vehicles, onClose, onSelect, passengerCount }) {
   async function viewVehicle(vehicleId) {
     try {
       const response = await axios.get(
-        `http://localhost:8080/vehicleController/api/v1/detailsOfVehicle/${vehicleId}`
+        `http://localhost:8085/vehicleController/api/v1/detailsOfVehicle/${vehicleId}`
       );
       console.log("Vehicle Details:", response.data);
     } catch (error) {
@@ -75,9 +75,17 @@ function VehicleModal({ vehicles, onClose, onSelect }) {
     }
   }
 
+  // ✅ FIX: filter outside JSX
+  const suggestedVehicles = useMemo(() => {
+    return vehicles.filter(
+      (v) => Number(v.passengerCount) >= Number(passengerCount)
+    );
+  }, [vehicles, passengerCount]);
+
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded-xl w-full max-w-4xl max-h-[80vh] overflow-y-auto shadow-lg">
+
         {/* HEADER */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">Select a Vehicle</h2>
@@ -86,43 +94,94 @@ function VehicleModal({ vehicles, onClose, onSelect }) {
           </button>
         </div>
 
-        {/* VEHICLE LIST */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {vehicles.map((v) => (
-            <div
-              key={v.vehicleId}
-              className="border rounded-xl p-3 hover:bg-gray-100 transition"
-            >
-              {/* IMAGE CAROUSEL */}
-              <ImageCarousel images={v.vehicleImages} />
+        {/* SUGGESTED VEHICLES */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-3">Suggested Vehicles</h2>
 
-              {/* DETAILS */}
-              <h3 className="text-xl font-semibold mt-2">{v.vehicleName}</h3>
-              <p className="text-gray-600">Type: {v.type}</p>
-              <p className="text-gray-600">
-                Passenger count: {v.passengerCount}
-              </p>
-              <p className="text-gray-600">
-                Booking Price: {v.bookingPrice?.toFixed(2)} USD
-              </p>
+          {suggestedVehicles.length === 0 && (
+            <p className="text-gray-500">No suitable vehicles found</p>
+          )}
 
-              <p className="text-gray-600">
-                Cost per km: {v.costPerKm?.toFixed(2)} USD
-              </p> 
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {suggestedVehicles.map((v) => (
+              <div
+                key={v.vehicleId}
+                className="border rounded-xl p-3 hover:bg-gray-100 transition"
+              >
+                <ImageCarousel images={v.vehicleImages} />
 
-              {/* SELECT BUTTON */}
-              <div>
-                <button onClick={() => viewVehicle(v.vehicleId)}>view</button>
-                <button
-                  onClick={() => onSelect(v)}
-                  className="mt-3 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700"
-                >
-                  Select Vehicle
-                </button>
+                <h3 className="text-xl font-semibold mt-2">
+                  {v.vehicleName}
+                </h3>
+                <p className="text-gray-600">Type: {v.type}</p>
+                <p className="text-gray-600">
+                  Passenger count: {v.passengerCount}
+                </p>
+                <p className="text-gray-600">
+                  Booking Price: {v.bookingPrice?.toFixed(2)} USD
+                </p>
+                <p className="text-gray-600">
+                  Cost per km: {v.costPerKm?.toFixed(2)} USD
+                </p>
+
+                <div>
+                  <button onClick={() => viewVehicle(v.vehicleId)}>
+                    view
+                  </button>
+                  <button
+                    onClick={() => onSelect(v)}
+                    className="mt-3 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700"
+                  >
+                    Select Vehicle
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+
+        {/* ALL VEHICLES */}
+        <div>
+          <h2 className="text-xl font-semibold mb-3">All Vehicles</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {vehicles.map((v) => (
+              <div
+                key={v.vehicleId}
+                className="border rounded-xl p-3 hover:bg-gray-100 transition"
+              >
+                <ImageCarousel images={v.vehicleImages} />
+
+                <h3 className="text-xl font-semibold mt-2">
+                  {v.vehicleName}
+                </h3>
+                <p className="text-gray-600">Type: {v.type}</p>
+                <p className="text-gray-600">
+                  Passenger count: {v.passengerCount}
+                </p>
+                <p className="text-gray-600">
+                  Booking Price: {v.bookingPrice?.toFixed(2)} USD
+                </p>
+                <p className="text-gray-600">
+                  Cost per km: {v.costPerKm?.toFixed(2)} USD
+                </p>
+
+                <div>
+                  <button onClick={() => viewVehicle(v.vehicleId)}>
+                    view
+                  </button>
+                  <button
+                    onClick={() => onSelect(v)}
+                    className="mt-3 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700"
+                  >
+                    Select Vehicle
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </div>
   );
