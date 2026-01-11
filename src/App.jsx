@@ -16,6 +16,7 @@ import FeaturedTours from "./pages/FeaturedTours";
 import PaymentPage from "./pages/PaymentPage";
 import About from '../src/pages/About'
 import Profile from '../src/pages/profile'
+import TourGuidePage from "./components/tourguide/TourGuidePage";
 
 
 function App() {
@@ -46,6 +47,9 @@ function App() {
           }
         />
         <Route path="/FeaturedTours" element={<FeaturedTours />} />
+
+        {/* Tour Guide Page */}
+        <Route path="/TourGuide" element={<TourGuidePage />} />
       </Routes>
       <WhatsappButton />
     </BrowserRouter>
