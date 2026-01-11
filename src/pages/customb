@@ -1,0 +1,447 @@
+import BookingDetails from "../components/service/bookingDetails";
+import RouteTrip from "../components/service/RouteTrip";
+import TripSummary from "../components/service/TripSummery";
+import DropDownField from "../components/DropDownField";
+import { FaLocationDot } from "react-icons/fa6";
+import PlacesGrid from "../components/service/PlaceGrid";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import bgImage from "../assets/bg.webp";
+import { toast } from "react-hot-toast";
+const API_URL = import.meta.env.VITE_BOOKING_SERVICE_API_URL;
+import BookingSuccessfulModel from "../components/service/BookingSuccessfulModel";
+
+export default function CustomPackage() {
+  // Booking details state
+  const [nameOfBooker, setNameOfBooker] = useState("");
+  const [emailAddress, setEmailAddress] = useState("");
+  const [bookerPhone, setBookerPhone] = useState("");
+  const [passportNumber, setPassportNumber] = useState("");
+  const [arrivalDateTime, setArrivalDateTime] = useState("");
+  const [departureDateTime, setDepartureDateTime] = useState("");
+  const [flightNumber, setFlightNumber] = useState("");
+  const [departureAirport, setDepartureAirport] = useState("");
+  const [adults, setAdults] = useState(0);
+  const [children, setChildres] = useState(0);
+  const [babies, setBabies] = useState(0);
+  const [specialPassengerNote, setSpecialPassengerNote] = useState("");
+
+  // Trip data state
+  const [startLocation, setStartLocation] = useState("");
+  const [endLocation, setEndLocation] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [isVehicle, setVehicle] = useState(false);
+  const [destinations, setDestinations] = useState([]);
+
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [places, setPlaces] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [routeData, setRouteData] = useState(null);
+  const [cost_per_km, setCostPerKm] = useState(0);
+  const [booking_price, setBookingPrice] = useState(0);
+
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [selectedDriver, setSelectedDriver] = useState(null);
+  const [selectedGuide, setSelectedGuide] = useState(null);
+
+  const [distance, setDistance] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [totalCost, setTotalCost] = useState(0);
+
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  const passengerCount = parseInt(adults) + parseInt(children) + parseInt(babies);
+
+  const [currentStep, setCurrentStep] = useState(1);
+
+  // =============================
+  // FUNCTIONS
+  // =============================
+
+  const validateBeforeConfirm = () => {
+    if (!nameOfBooker) return "Name is required.";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailAddress)) {
+      return "Please enter a valid email address.";
+    }
+    if (!bookerPhone) return "Phone number is required.";
+    if (!passportNumber) return "Passport number is required.";
+    if (!arrivalDateTime) return "Arrival date/time is required.";
+    if (!departureDateTime) return "Departure date/time is required.";
+    if (!flightNumber) return "Flight number is required.";
+    if (!departureAirport) return "Departure airport is required.";
+
+    if (!startLocation) return "Start location is required.";
+    if (!endLocation) return "End location is required.";
+    if (!startDate) return "Trip start date is required.";
+    if (!endDate) return "Trip end date is required.";
+
+    if (destinations.length === 0)
+      return "Please add at least one destination.";
+
+    if (!routeData) return "Please calculate the route before confirming.";
+
+    // If everything is OK
+    return null;
+  };
+
+  const submitTrip = async () => {
+    const tripData = {
+      bookingDetails: {
+        nameOfBooker,
+        bookerEmail: emailAddress,
+        bookerPhone,
+        passportNumber,
+        arrivalDateTime,
+        departureDateTime,
+        flightNumber,
+        departureAirport,
+        adults,
+        children,
+        babies,
+      },
+      tripDetails: {
+        startLocation,
+        endLocation,
+        startDate,
+        endDate,
+        isVehicle,
+        destinations,
+      },
+    };
+
+    const loadingToast = toast.loading("Calculating route...");
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_GOOGLE_MAPS_API_URL}/api/maps/shortest-route`,
+        {
+          start: startLocation,
+          end: endLocation,
+          waypoints: destinations,
+        }
+      );
+
+      toast.dismiss(loadingToast);
+      toast.success("Route calculated successfully!");
+      setRouteData(response.data);
+    } catch (error) {
+      toast.dismiss(loadingToast);
+      toast.error("Failed to calculate route. Please try again.");
+      console.error("Route API Error:", error.response?.data || error.message);
+    }
+  };
+
+  const confirm_booking = async () => {
+    const error = validateBeforeConfirm();
+
+    if (error) {
+      toast.error(error);
+      return;
+    }
+
+    if (!localStorage.getItem("token")) {
+      toast.error("Please log in to confirm the booking.");
+      return;
+    }
+
+    const bookingPayload = {
+      user: {
+        userId: localStorage.getItem("userId"),
+        role: localStorage.getItem("role"),
+      },
+
+      bookingDetails: {
+        nameOfBooker,
+        bookerEmail: emailAddress,
+        bookerPhone,
+        passportNumber,
+        arrivalDateTime,
+        departureDateTime,
+        flightNumber,
+        departureAirport,
+        passengers: {
+          adults,
+          children,
+          babies,
+        },
+        specialPassengerNote,
+      },
+
+      tripDetails: {
+        startLocation,
+        endLocation,
+        startDate,
+        endDate,
+        isVehicle,
+        destinations,
+      },
+
+      routeDetails: {
+        distance: distance,
+        duration: duration,
+        polyline: routeData?.polyline,
+        costPerKm: cost_per_km,
+        bookingPrice: totalCost,
+      },
+      resources: {
+        vehicle: selectedVehicle
+          ? {
+              vehicleId: selectedVehicle.vehicleId,
+              vehicleName: selectedVehicle.vehicleName,
+              vehicleNumber: selectedVehicle.vehicleNumber,
+              category: selectedVehicle.category,
+            }
+          : null,
+
+        driver: selectedDriver
+          ? {
+              driverId: selectedDriver.driverId,
+              firstName: selectedDriver.firstName,
+              lastName: selectedDriver.lastName,
+              phone: selectedDriver.phone1,
+            }
+          : null,
+
+        guide: selectedGuide
+          ? {
+              guideId: selectedGuide.id,
+              name: selectedGuide.name,
+              language: selectedGuide.language,
+              experienceYears: selectedGuide.experienceYears,
+            }
+          : null,
+      },
+
+      metadata: {
+        createdAt: new Date().toISOString(),
+        source: "CUSTOM_PACKAGE",
+        packageId: 1,
+      },
+    };
+
+    // console.group("📦 Booking Payload");
+    // console.log(bookingPayload);
+    // console.groupEnd();
+
+    try {
+      const response = await axios.post(
+        `${API_URL}/saveBooking`,
+        bookingPayload
+      );
+
+      console.log("✅ Booking saved:", response.data);
+      toast.success("Booking successfully!");
+      setShowSuccessModal(true);
+    } catch (error) {
+      console.error("❌ Booking error:", error);
+
+      if (error.response?.status === 403) {
+        toast.error("403 Forbidden – backend is blocking this request");
+      } else {
+        toast.error("Booking failed. Please try again.");
+      }
+    }
+  };
+
+  const fetchPlaces = async () => {
+    if (!selectedDistrict) return;
+    setLoading(true);
+
+    try {
+      const res = await axios.get(
+        `${
+          import.meta.env.VITE_GOOGLE_MAPS_API_URL
+        }/placess/${selectedDistrict}`
+      );
+
+      setPlaces(res.data);
+    } catch (err) {
+      console.error("Error fetching places:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPlaces();
+  }, [selectedDistrict]);
+
+  return (
+    <>
+    
+      <div
+        className="
+          min-h-screen 
+          bg-slate-900/60
+          bg-cover bg-center bg-fixed
+        "
+        style={{ backgroundImage: `url(${bgImage})` }}
+      >
+        <div className="text-center p-10">
+          <h1 className="hidden md:block font-bold text-gray-900 md:text-4xl">
+            Make Your Dream Tour
+          </h1>
+          <h1 className="font-bold text-gray-900 md:hidden">
+            <span className="text-4xl">Make Your</span>
+            <br />
+            <span className="text-3xl">Dream Tour</span>
+          </h1>
+        </div>
+        
+
+        <div className="container mx-auto px-2 grid grid-cols-12 gap-4">
+          {/* Booking Panel */}
+          <div className="col-span-12 lg:col-span-8">
+            <BookingDetails
+              nameOfBooker={nameOfBooker}
+              setNameOfBooker={setNameOfBooker}
+              emailAddress={emailAddress}
+              setEmailAddress={setEmailAddress}
+              bookerPhone={bookerPhone}
+              setBookerPhone={setBookerPhone}
+              passportNumber={passportNumber}
+              setPassportNumber={setPassportNumber}
+              arrivalDateTime={arrivalDateTime}
+              setArrivalDateTime={setArrivalDateTime}
+              departureDateTime={departureDateTime}
+              setDepartureDateTime={setDepartureDateTime}
+              flightNumber={flightNumber}
+              setFlightNumber={setFlightNumber}
+              departureAirport={departureAirport}
+              setDepartureAirport={setDepartureAirport}
+              adults={adults}
+              setAdults={setAdults}
+              children={children}
+              setChildres={setChildres}
+              babies={babies}
+              setBabies={setBabies}
+              specialPassengerNote={specialPassengerNote}
+              setSpecialPassengerNote={setSpecialPassengerNote}
+            />
+
+            <RouteTrip
+              startLocation={startLocation}
+              setStartLocation={setStartLocation}
+              endLocation={endLocation}
+              setEndLocation={setEndLocation}
+              startDate={startDate}
+              setStartDate={setStartDate}
+              endDate={endDate}
+              setEndDate={setEndDate}
+              isVehicle={isVehicle}
+              setVehicle={setVehicle}
+              destinations={destinations}
+              setDestinations={setDestinations}
+              setCostPerKm={setCostPerKm}
+              setBookingPrice={setBookingPrice}
+              selectedVehicle={selectedVehicle}
+              setSelectedVehicle={setSelectedVehicle}
+              selectedDriver={selectedDriver}
+              setSelectedDriver={setSelectedDriver}
+              selectedGuide={selectedGuide}
+              setSelectedGuide={setSelectedGuide}
+              submit={submitTrip}
+              passengerCount={passengerCount}
+            />
+          </div>
+
+          {/* Trip Summary */}
+          <div className="col-span-12 lg:col-span-4">
+            <TripSummary
+              name={nameOfBooker}
+              startLocation={startLocation}
+              endLocation={endLocation}
+              startDate={startDate}
+              endDate={endDate}
+              waypoints={destinations}
+              routeData={routeData}
+              cost_per_km={cost_per_km}
+              booking_price={booking_price}
+              setDistance={setDistance}
+              setDuration={setDuration}
+              confirmBooking={confirm_booking}
+              totalCost={totalCost}
+              setTotalCost={setTotalCost}
+            />
+          </div>
+        </div>
+
+        {/* District Search Section */}
+        <div className="container mx-auto px-2 grid">
+          <div className="m-5">
+            <h1 className="font-bold text-center text-gray-900 text-3xl mb-6">
+              Need Help Choosing a Location?
+            </h1>
+
+            <div className="flex justify-center">
+              <div className="bg-[#D4F6FF]/60 rounded-xl py-6 px-6 max-w-4xl">
+                <p className="text-gray-700 text-base flex items-center gap-3">
+                  <span className="text-blue-500 text-xl hidden md:block">
+                    <FaLocationDot />
+                  </span>
+                  If you don't know the exact location, we can help you explore
+                  beautiful places by district.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-center mt-5">
+              <div className="md:w-[300px] w-full">
+                <DropDownField
+                  label="District"
+                  value={selectedDistrict}
+                  onChange={(e) => setSelectedDistrict(e.target.value)}
+                  options={[
+                    "Colombo",
+                    "Gampaha",
+                    "Kalutara",
+                    "Kandy",
+                    "Matale",
+                    "Nuwara Eliya",
+                    "Galle",
+                    "Matara",
+                    "Hambantota",
+                    "Jaffna",
+                    "Kilinochchi",
+                    "Mannar",
+                    "Vavuniya",
+                    "Mullaitivu",
+                    "Batticaloa",
+                    "Ampara",
+                    "Trincomalee",
+                    "Kurunegala",
+                    "Puttalam",
+                    "Anuradhapura",
+                    "Polonnaruwa",
+                    "Badulla",
+                    "Monaragala",
+                    "Ratnapura",
+                    "Kegalle",
+                  ]}
+                />
+              </div>
+            </div>
+
+            {loading ? (
+              <p className="text-center mt-6 text-gray-600">
+                Loading places... Please wait 😊
+              </p>
+            ) : (
+              <PlacesGrid places={places} />
+            )}
+          </div>
+        </div>
+      </div>
+      {/* SUCCESS MODAL */}
+      <BookingSuccessfulModel
+        open={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          window.location.href = "/dashboard";
+        }}
+      />
+    </>
+  );
+}

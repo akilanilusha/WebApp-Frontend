@@ -16,13 +16,18 @@ import FeaturedTours from "./pages/FeaturedTours";
 import PaymentPage from "./pages/PaymentPage";
 import About from '../src/pages/About'
 import Profile from '../src/pages/profile'
+import Test from './pages/test'
 
 
 function App() {
   return (
     <BrowserRouter>
+    
       <Navbar />
       <Toaster position="top-center" reverseOrder={false} />
+
+            <div className="pt-[80px]">
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/Home" element={<Home />} />
@@ -46,7 +51,9 @@ function App() {
           }
         />
         <Route path="/FeaturedTours" element={<FeaturedTours />} />
+        <Route path="/test" element={<Test />} />
       </Routes>
+      </div>
       {/* <WhatsappButton /> */}
     </BrowserRouter>
   );

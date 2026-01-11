@@ -31,12 +31,13 @@ function Hero() {
           Effortlessly plan your journey with intelligent route optimization.
           Discover the shortest paths, estimated distance, time, and cost — all
           before you book your trip.
-        </p>
+        </p>        
+      </div>
 
-        {/* Search Bar */}
-        <div className="mt-10">
-          <RoutePlanner />
-        </div>
+      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2">
+        <button className="px-6 py-3 bg-[#1DA9CC] text-white rounded-full font-semibold hover:bg-[#0d8a9f] transition duration-300">
+          Plan your trip
+        </button>
       </div>
     </section>
   );

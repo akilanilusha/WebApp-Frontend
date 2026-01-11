@@ -57,7 +57,7 @@ export default function Navbar() {
   return (
     <Disclosure
       as="nav"
-      className="fixed top-0 w-full z-50 bg-black/10 backdrop-blur-md"
+      className="fixed top-0 w-full z-50 bg-black backdrop-blur-md"
     >
       {({ open }) => (
         <>
