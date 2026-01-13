@@ -193,7 +193,7 @@ export default function Navbar() {
             static
             className={classNames(
               open ? "translate-x-0" : "translate-x-full",
-              "fixed top-0 right-0 h-full w-72 bg-white text-black transform transition-transform duration-300 md:hidden z-50"
+              "fixed top-0 right-0 h-full w-full bg-white text-black transform transition-transform duration-300 md:hidden z-50"
             )}
           >
             <div className="flex items-center justify-between px-6 py-4 border-b">
@@ -203,7 +203,7 @@ export default function Navbar() {
               </DisclosureButton>
             </div>
 
-            <div className="px-6 py-6 space-y-4">
+            <div className="px-6 py-6 space-y-4 bg-white">
               <NavLink
                 to="/home"
                 className={({ isActive }) =>

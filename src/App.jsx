@@ -17,9 +17,18 @@ import PaymentPage from "./pages/PaymentPage";
 import About from '../src/pages/About'
 import Profile from '../src/pages/profile'
 import Test from './pages/test'
-
+import AOS from "aos";
+import "aos/dist/aos.css";
+import { useEffect } from "react";
 
 function App() {
+    useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: true,
+      easing: "ease-in-out",
+    });
+  }, []);
   return (
     <BrowserRouter>
     

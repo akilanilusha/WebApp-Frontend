@@ -7,7 +7,7 @@ function ShotrestPath() {
   return (
     <div className="container mx-auto px-4 mt-20">
       {/* HERO */}
-      <div className="relative w-8/12 rounded-xl overflow-hidden flex justify-center mx-auto">
+      <div className="relative w-8/12 rounded-xl overflow-hidden flex justify-center mx-auto" data-aos="fade-up">
         <img
           src={travel}
           alt="Plan your trip"
@@ -15,7 +15,7 @@ function ShotrestPath() {
         />
 
         <div className="absolute inset-0 flex items-center justify-center">
-          <h2 className="text-black text-lg md:text-5xl font-semibold text-center">
+          <h2 className="text-black text-xl md:text-5xl font-semibold text-center">
             MAKE YOUR
             <span className="text-[#1DA9CC]"> OWN PATH</span>
           </h2>
@@ -24,7 +24,7 @@ function ShotrestPath() {
 
       {/* ROUTE SECTION */}
       <div
-        className="mt-14 bg-cover bg-center rounded-3xl p-8 md:p-16"
+        className="mt-14 bg-cover bg-center rounded-3xl p-2 md:p-16"
         style={{ backgroundImage: `url(${map})` }}
       >
         <ShortestPathForm />

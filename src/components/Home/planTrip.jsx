@@ -6,7 +6,7 @@ function PlanTrip() {
     <div className="container mx-auto px-4 mt-10">
       
       {/* Image Wrapper */}
-      <div className="relative w-full rounded-xl overflow-hidden">
+      <div className="relative w-full rounded-xl overflow-hidden" data-aos="fade-down">
         {/* Image */}
         <img
           src={tripgenix}

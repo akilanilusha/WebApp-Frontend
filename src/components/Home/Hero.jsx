@@ -18,7 +18,7 @@ function Hero() {
       <div className="absolute inset-0 bg-black/40"></div>
 
       {/* Hero Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 h-[calc(100vh-120px)]">
+      <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 h-[calc(100vh-120px)]" data-aos="fade-down">
         <p className="uppercase tracking-[0.3em] text-sm mb-4">
           Plan smarter with
         </p>
