@@ -1,29 +1,48 @@
 import { useEffect, useRef, useState } from "react";
 
 export default function TripSummary({
-  name,
-  startLocation,
-  endLocation,
-  startDate,
-  endDate,
-  waypoints,
-  routeData,
-  cost_per_km,
-  booking_price,
-  guid_cost=4500.00,
+  bookingDetails,
+  tripDetails,
+  routeDetails,
+  setRouteDetails,
+  resources,
   confirmBooking,
 }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
-  const [summary, setSummary] = useState(null);
-  const millageCharge = (cost_per_km || 0) * (summary?.totalKm || 0);
-  const totalCost = (booking_price || 0) + millageCharge + (guid_cost || 0);
 
+  const [summary, setSummary] = useState(null);
+  const [openDetails, setOpenDetails] = useState(false);
+
+  const guideCost = resources.guide ? 4500 : 0;
+
+  /* =============================
+     CALCULATE TOTAL COST
+  ============================= */
+  useEffect(() => {
+    if (!summary) return;
+
+    const mileage =
+      (routeDetails.costPerKm || 0) * Number(summary.totalKm || 0);
+
+    const total =
+      (routeDetails.bookingPrice || 0) +
+      mileage +
+      guideCost;
+
+    setRouteDetails((prev) => ({
+      ...prev,
+      totalCost: total,
+    }));
+  }, [summary, routeDetails.costPerKm, routeDetails.bookingPrice, guideCost]);
+
+  /* =============================
+     MAP + ROUTE LOGIC
+  ============================= */
   useEffect(() => {
     const g = window.google;
-    if (!g) return;
+    if (!g || !routeDetails.routeData) return;
 
-    // Initialize map ONE TIME
     if (!mapInstance.current) {
       mapInstance.current = new g.maps.Map(mapRef.current, {
         zoom: 8,
@@ -31,29 +50,7 @@ export default function TripSummary({
       });
     }
 
-    // ==== SHOW DEFAULT MAP WHEN NO ROUTE ====
-    if (!routeData || !routeData.routes) {
-      // Clear polyline
-      if (window.currentRouteLine) {
-        window.currentRouteLine.setMap(null);
-        window.currentRouteLine = null;
-      }
-
-      // Clear markers
-      if (window.routeMarkers) {
-        window.routeMarkers.forEach((m) => m.setMap(null));
-      }
-      window.routeMarkers = [];
-
-      // Reset map
-      mapInstance.current.setZoom(8);
-      mapInstance.current.setCenter({ lat: 7.8731, lng: 80.7718 });
-
-      return;
-    }
-
-    // ===== Route exists: Draw summary and route =====
-    const route = routeData.routes[0];
+    const route = routeDetails.routeData.routes[0];
     const legs = route.legs;
 
     let totalDist = 0;
@@ -74,7 +71,9 @@ export default function TripSummary({
     const hrs = Math.floor(totalDur / 3600);
     const mins = Math.floor((totalDur % 3600) / 60);
 
-    const orderedStops = route.waypoint_order.map((i) => waypoints[i]);
+    const orderedStops = route.waypoint_order.map(
+      (i) => tripDetails.destinations[i]
+    );
 
     setSummary({
       legsSummary,
@@ -83,191 +82,195 @@ export default function TripSummary({
       orderedStops,
     });
 
-    // ===== Draw polyline =====
+    setRouteDetails((prev) => ({
+      ...prev,
+      distance: Number(totalKm),
+      duration: Math.floor(totalDur / 60),
+    }));
+
+    /* -------- CLEAR OLD MAP ITEMS -------- */
+    if (window.currentRouteLine) {
+      window.currentRouteLine.setMap(null);
+      window.currentRouteLine = null;
+    }
+
+    if (window.routeMarkers) {
+      window.routeMarkers.forEach((m) => m.setMap(null));
+    }
+    window.routeMarkers = [];
+
+    /* -------- DRAW POLYLINE -------- */
     const decoded = g.maps.geometry.encoding.decodePath(
       route.overview_polyline.points
     );
-
-    if (window.currentRouteLine) {
-      window.currentRouteLine.setMap(null);
-    }
 
     window.currentRouteLine = new g.maps.Polyline({
       path: decoded,
       geodesic: true,
       strokeColor: "#007aff",
-      strokeOpacity: 0.8,
+      strokeOpacity: 0.85,
       strokeWeight: 4,
     });
 
     window.currentRouteLine.setMap(mapInstance.current);
 
-    // Fit map bounds
     const bounds = new g.maps.LatLngBounds();
     decoded.forEach((p) => bounds.extend(p));
     mapInstance.current.fitBounds(bounds);
 
-    // Clear old markers
-    if (!window.routeMarkers) window.routeMarkers = [];
-    window.routeMarkers.forEach((m) => m.setMap(null));
-    window.routeMarkers = [];
-
+    /* -------- MARKERS -------- */
     const labels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    // START Marker
+    // START
     const startMarker = new g.maps.Marker({
       map: mapInstance.current,
       position: legs[0].start_location,
       label: labels[0],
-      title: startLocation,
+      title: tripDetails.startLocation,
       icon: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
     });
     window.routeMarkers.push(startMarker);
 
-    // WAYPOINT + END markers
+    // WAYPOINTS + END
     legs.forEach((leg, i) => {
-      const isEnd = i === legs.length - 1;
+      const isLast = i === legs.length - 1;
 
       const marker = new g.maps.Marker({
         map: mapInstance.current,
         position: leg.end_location,
         label: labels[i + 1],
         title: leg.end_address,
-        icon: isEnd
+        icon: isLast
           ? "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
           : "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
       });
 
       window.routeMarkers.push(marker);
     });
-  }, [routeData]);
+  }, [routeDetails.routeData]);
 
+  /* =============================
+     RENDER
+  ============================= */
   return (
-    <div
-      className="w-full bg-white/60 
-  backdrop-blur-xl
-  border border-white/20 
-  shadow-lg 
-  rounded-2xl  p-10"
-    >
+    <div className="w-full bg-white/60 backdrop-blur-xl border shadow rounded-2xl p-8">
       <h1 className="text-2xl font-bold text-center">Trip Summary</h1>
-      <hr className="my-3" />
-      <div className="w-full max-w-xl mt-6 space-y-4 text-lg p-4">
-        <div className="grid grid-cols-2">
-          <span className="font-light">Name :</span>
-          <span>{name || ""}</span>
-        </div>
+      <hr className="my-4" />
 
-        <div className="grid grid-cols-2">
-          <span className="font-light">Pickup Location :</span>
-          <span>{startLocation || ""}</span>
-        </div>
-
-        <div className="grid grid-cols-2">
-          <span className="font-light">Start Date :</span>
-          <span>{startDate || ""}</span>
-        </div>
-
-        <div className="grid grid-cols-2">
-          <span className="font-light">Drop Location :</span>
-          <span>{endLocation || ""}</span>
-        </div>
-        <div className="grid grid-cols-2">
-          <span className="font-light">End Date :</span>
-          <span>{endDate || ""}</span>
-        </div>
-
-        <div className="grid grid-cols-2">
-          <span className="font-light">Distance :</span>
-          <span>{summary?.totalKm ? summary.totalKm + " Km" : ""}</span>
-        </div>
-
-        <div className="grid grid-cols-2">
-          <span className="font-light">Time Duration :</span>
-          <span>{summary?.totalTimeText || ""}</span>
-        </div>
-
-        <div className="grid grid-cols-2">
-          <span className="font-light">Base Fare :</span>
-          <span className="text-right">{(booking_price || 0).toFixed(2)}</span>
-        </div>
-
-        <div className="grid grid-cols-2">
-          <span className="font-light">Mileage Charge :</span>
-          <span className="text-right">
-            {(millageCharge).toFixed(2)}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2">
-          <span className="font-light">Guide Cost :</span>
-          <span className="text-right">{(guid_cost || 0).toFixed(2) || 0.00}</span>
-        </div>
+      <div className="space-y-3 text-lg">
+        <Row label="Name" value={bookingDetails.nameOfBooker} />
+        <Row label="Pickup" value={tripDetails.startLocation} />
+        <Row label="Start Date" value={tripDetails.startDate} />
+        <Row label="Drop" value={tripDetails.endLocation} />
+        <Row label="End Date" value={tripDetails.endDate} />
+        <Row label="Distance" value={`${summary?.totalKm || 0} km`} />
+        <Row label="Duration" value={summary?.totalTimeText || "-"} />
+        <Row label="Base Fare" value={routeDetails.bookingPrice} />
+        <Row
+          label="Mileage"
+          value={(
+            (routeDetails.costPerKm || 0) *
+            Number(summary?.totalKm || 0)
+          ).toFixed(2)}
+        />
+        <Row label="Guide" value={guideCost.toFixed(2)} />
 
         <hr />
 
-        {/* Total Section */}
-        <div className="pt-6 grid grid-cols-2 items-center">
-          <span className="font-bold text-xl">Total Cost:</span>
-
-          <div className="w-full">
-            <div className=" text-right font-semibold">{(totalCost).toFixed(2)}</div>
-          </div>
-        </div>
+        <Row
+          label="Total"
+          value={routeDetails.totalCost?.toFixed(2)}
+          bold
+        />
       </div>
 
-      <div className="mt-4">
-        <h1 className="text-center font-medium text-xl">Route Preview</h1>
+      <h2 className="text-center text-xl font-medium mt-6">
+        Route Preview
+      </h2>
 
-        {/* MAP */}
-        <div ref={mapRef} className="w-full h-72 rounded-lg border my-4" />
+      <div ref={mapRef} className="w-full h-72 rounded-lg border my-4" />
 
-        {/* {summary && (
-          <div className="bg-gray-100 p-4 rounded-lg text-sm">
-            <p className="font-semibold text-green-700">
-              ✔ Optimized Route Order:
+      {/* ORDERED ROUTE TEXT */}
+      {summary && (
+        <div className="bg-white border p-5 rounded-xl shadow-sm text-sm space-y-3 mt-4">
+          <div className="font-semibold text-green-700">
+            Optimized Route Order
+          </div>
+
+          <p><b>A</b> — {tripDetails.startLocation}</p>
+
+          {summary.orderedStops.map((stop, i) => (
+            <p key={i}>
+              <b>{String.fromCharCode(66 + i)}</b> — {stop}
             </p>
+          ))}
 
-            <div className="ml-4 mt-1">
-              <p>A — {startLocation}</p>
-              {summary.orderedStops.map((stop, i) => (
-                <p key={i}>
-                  {String.fromCharCode(66 + i)} — {stop}
-                </p>
-              ))}
-              <p>
-                {String.fromCharCode(66 + summary.orderedStops.length)} —{" "}
-                {endLocation}
-              </p>
-            </div>
+          <p>
+            <b>
+              {String.fromCharCode(66 + summary.orderedStops.length)}
+            </b>{" "}
+            — {tripDetails.endLocation}
+          </p>
 
-            <hr className="my-3" />
+          <button
+            onClick={() => setOpenDetails(true)}
+            className="w-full border border-green-600 text-green-700 py-2 rounded-lg hover:bg-green-50"
+          >
+            See Full Route Details
+          </button>
+        </div>
+      )}
 
-            <p className="font-semibold">📍 Route Details:</p>
+      <button
+        className="bg-[#0F3B45] text-white w-full py-3 rounded-full mt-6"
+        onClick={confirmBooking}
+      >
+        Confirm Booking
+      </button>
+
+      {/* FULL ROUTE DETAILS MODAL */}
+      {openDetails && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+          <div className="bg-white max-w-3xl w-full p-6 rounded-xl max-h-[90vh] overflow-y-auto relative">
+            <button
+              onClick={() => setOpenDetails(false)}
+              className="absolute top-3 right-4 text-xl"
+            >
+              ✕
+            </button>
+
+            <h2 className="text-xl font-bold mb-4 text-center">
+              Full Route Details
+            </h2>
+
             {summary.legsSummary.map((l, i) => (
-              <div key={i} className="ml-3 mb-3">
-                <p>
-                  {String.fromCharCode(65 + i)} → {String.fromCharCode(66 + i)}
+              <div key={i} className="border p-4 rounded mb-3">
+                <p className="font-semibold">
+                  {l.start.split(",")[0]} → {l.end.split(",")[0]}
                 </p>
                 <p>Distance: {l.dist}</p>
                 <p>Duration: {l.time}</p>
               </div>
             ))}
 
-            <p>
-              <b>Total Distance:</b> {summary.totalKm} km
-            </p>
-            <p>
-              <b>Total Time:</b> {summary.totalTimeText}
-            </p>
+            <div className="bg-green-50 p-4 rounded-lg">
+              <p><b>Total Distance:</b> {summary.totalKm} km</p>
+              <p><b>Total Time:</b> {summary.totalTimeText}</p>
+            </div>
           </div>
-        )} */}
-      </div>
-      <div className="flex justify-cente ">
-        <button className="bg-[#0F3B45] text-white w-full py-2 rounded-full flex items-center gap-2 hover:bg-[#0c2e36] justify-center mt-4" onClick={confirmBooking}>
-          Confirm & Pay
-        </button>
-      </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------------- HELPER ---------------- */
+
+function Row({ label, value, bold }) {
+  return (
+    <div className={`grid grid-cols-2 ${bold ? "font-bold text-xl" : ""}`}>
+      <span>{label} :</span>
+      <span className="text-right">{value}</span>
     </div>
   );
 }

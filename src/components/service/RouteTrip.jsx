@@ -4,7 +4,11 @@ import DynamicList from "./DynamicList";
 import VehicleModal from "./VehicleModal";
 import DriverModal from "./DriverModal";
 import TourGuideModal from "./TourGuideModal";
+import GooglePlaceInput from "../service/GooglePlaceInput";
 import axios from "axios";
+
+const DRIVER_API = import.meta.env.VITE_DRIVER_SERVICE_API_URL;
+const VEHICLE_API = import.meta.env.VITE_VEHICLE_SERVICE_API_URL;
 
 const tempTourGuides = [
   {
@@ -25,155 +29,145 @@ const tempTourGuides = [
     phone: "0712345678",
     photo: "https://randomuser.me/api/portraits/women/44.jpg",
   },
-  {
-    id: 3,
-    name: "Pramuditha Samarasekara",
-    experience: "8 years",
-    languages: ["English", "Sinhala", "Hindi"],
-    rating: 4.9,
-    phone: "0769988776",
-    photo: "https://randomuser.me/api/portraits/men/28.jpg",
-  },
 ];
 
 export default function RouteTrip({
-  startLocation,
-  setStartLocation,
-  endLocation,
-  setEndLocation,
-  startDate,
-  setStartDate,
-  endDate,
-  setEndDate,
-  destinations,
-  setDestinations,
-  submit,
-  costPerKm,
-  setCostPerKm,
-  booking_price,
-  setBookingPrice,
-  selectedVehicle,
-  setSelectedVehicle,
-  selectedDriver,
-  setSelectedDriver,
-  selectedGuide,
-  setSelectedGuide,
+  tripDetails,
+  setTripDetails,
+  routeDetails,
+  setRouteDetails,
+  resources,
+  setResources,
+  submitTrip,
+  passengerCount,
 }) {
-
   const [showVehicleModal, setShowVehicleModal] = useState(false);
   const [showDriverModal, setShowDriverModal] = useState(false);
   const [showGuideModal, setShowGuideModal] = useState(false);
 
   const [vehicles, setVehicles] = useState([]);
-  const [drivers, setDrivers] = useState([]); // NEW
+  const [drivers, setDrivers] = useState([]);
 
-  // ====================
-  // LOAD ALL DRIVERS
-  // ====================
+  /* ---------------- HELPERS ---------------- */
+
+  const updateTrip = (field, value) => {
+    setTripDetails((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const updateResource = (type, value) => {
+    setResources((prev) => ({
+      ...prev,
+      [type]: value,
+    }));
+  };
+
+  /* ---------------- LOAD DRIVERS ---------------- */
+
   useEffect(() => {
-    async function loadDrivers() {
-      try {
-        const res = await axios.get(
-          "http://localhost:8081/driveController/api/v1"
-        );
-        console.log("Fetched Drivers:", res);
-        setDrivers(res.data);
-      } catch (error) {
-        console.error("Error loading drivers:", error);
-      }
-    }
-    loadDrivers();
+    axios
+      .get(DRIVER_API)
+      .then((res) => setDrivers(res.data))
+      .catch(console.error);
   }, []);
 
-  // ====================
-  // LOAD VEHICLES
-  // ====================
-  async function loadVehicles() {
+  /* ---------------- LOAD VEHICLES ---------------- */
+
+  const loadVehicles = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:8080/webRequestController/api/v1/getvehicles"
+      const res = await axios.get(
+        `${VEHICLE_API}/webRequestController/api/v1/getvehicles`
       );
-      const vehicles = response.data;
-      console.log("Fetched Vehicles:", vehicles);
-      setVehicles(vehicles);
+      setVehicles(res.data);
       setShowVehicleModal(true);
-    } catch (error) {
-      console.error("Error fetching vehicles:", error);
+    } catch (err) {
+      console.error("Vehicle fetch failed", err);
     }
-  }
+  };
 
-  // ---- handlers ----
+  /* ---------------- SELECTION HANDLERS ---------------- */
+
   const handleVehicleSelect = (vehicle) => {
-    setSelectedVehicle(vehicle);
-    setSelectedDriver(null);
-    setShowVehicleModal(false);
+    updateResource("vehicle", vehicle);
+    updateResource("driver", null);
 
-    setCostPerKm(vehicle.costPerKm);
-    setBookingPrice(vehicle.bookingPrice);
+    setRouteDetails((prev) => ({
+      ...prev,
+      costPerKm: vehicle.costPerKm,
+      bookingPrice: vehicle.bookingPrice,
+    }));
+
+    setShowVehicleModal(false);
   };
 
   const handleDriverSelect = (driver) => {
-    setSelectedDriver(driver);
+    updateResource("driver", driver);
     setShowDriverModal(false);
   };
 
-  // ====================
-  // FILTER DRIVERS BY SELECTED VEHICLE
-  // ====================
-  const filteredDrivers = selectedVehicle?.vehicleId
-    ? drivers.filter((d) =>
-        d.selectedVehicleCategories.includes(selectedVehicle.vehicleId)
-      )
+  /* ---------------- FILTER DRIVERS ---------------- */
+
+  const filteredDrivers = resources.vehicle
+    ? drivers.filter((d) => {
+        const categoryMatch =
+          d.selectedVehicleCategories?.includes(
+            Number(resources.vehicle.type)
+          );
+        const numberMatch =
+          d.selectedVehicleByNumber?.includes(
+            resources.vehicle.vehicleId
+          );
+        return categoryMatch || numberMatch;
+      })
     : [];
 
+  /* ===================== RENDER ===================== */
+
   return (
-    <div
-      className="
-        mb-10 p-6 
-        rounded-2xl
-        bg-white/50 
-        backdrop-blur-[15px]
-        border border-white/30
-        shadow-[0_4px_30px_rgba(0,0,0,0.1)]
-      "
-    >
+    <div className="mb-10 p-6 rounded-2xl bg-white/50 backdrop-blur-xl border shadow">
       <h1 className="text-3xl font-bold mb-8">Trip Details</h1>
 
-      {/* -------- GRID -------- */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <InputField
+        <GooglePlaceInput
           label="Start Location"
-          value={startLocation}
-          onChange={(e) => setStartLocation(e.target.value)}
-          enableAutocomplete
+          value={tripDetails.startLocation}
+          onChange={(val) => updateTrip("startLocation", val)}
         />
 
-        <InputField
+        <GooglePlaceInput
           label="End Location"
-          value={endLocation}
-          onChange={(e) => setEndLocation(e.target.value)}
+          value={tripDetails.endLocation}
+          onChange={(val) => updateTrip("endLocation", val)}
         />
 
         <div className="sm:col-span-2 lg:col-span-1 row-span-2">
           <DynamicList
             title="Add Destination"
-            destinations={destinations}
-            setDestinations={setDestinations}
+            destinations={tripDetails.destinations}
+            setDestinations={(list) =>
+              updateTrip("destinations", list)
+            }
           />
         </div>
 
         <InputField
           label="Start Date"
           type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
+          value={tripDetails.startDate}
+          onChange={(e) =>
+            updateTrip("startDate", e.target.value)
+          }
         />
 
         <InputField
           label="End Date"
           type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
+          value={tripDetails.endDate}
+          onChange={(e) =>
+            updateTrip("endDate", e.target.value)
+          }
         />
 
         {/* VEHICLE */}
@@ -181,28 +175,28 @@ export default function RouteTrip({
           <button className="glass-btn w-full" onClick={loadVehicles}>
             Select Vehicle
           </button>
-
-          {selectedVehicle && (
-            <GlassCard item={selectedVehicle} type="vehicle" />
+          {resources.vehicle && (
+            <GlassCard item={resources.vehicle} type="vehicle" />
           )}
         </div>
 
         {/* DRIVER */}
         <div>
           <button
-            disabled={!selectedVehicle}
+            disabled={!resources.vehicle}
             className={`glass-btn w-full ${
-              !selectedVehicle ? "opacity-50 cursor-not-allowed" : ""
+              !resources.vehicle && "opacity-50"
             }`}
             onClick={() => setShowDriverModal(true)}
           >
             Select Driver
           </button>
-
-          {selectedDriver && <GlassCard item={selectedDriver} type="driver" />}
+          {resources.driver && (
+            <GlassCard item={resources.driver} type="driver" />
+          )}
         </div>
 
-        {/* TOUR GUIDE */}
+        {/* GUIDE */}
         <div>
           <button
             className="glass-btn w-full"
@@ -210,23 +204,24 @@ export default function RouteTrip({
           >
             Select Tour Guide
           </button>
-
-          {selectedGuide && <GlassCard item={selectedGuide} type="guide" />}
+          {resources.guide && (
+            <GlassCard item={resources.guide} type="guide" />
+          )}
         </div>
       </div>
 
-      {/* ---- ACTION BUTTONS ---- */}
-      <div className="mt-10 flex flex-col sm:flex-row justify-end gap-4">
-        <button className="clear-btn">Clear</button>
-        <button className="proceed-btn" onClick={submit}>
+      <div className="mt-10 flex justify-end gap-4">
+        <button className="proceed-btn" onClick={submitTrip}>
           Proceed
         </button>
       </div>
 
-      {/* ---- MODALS ---- */}
+      {/* ---------------- MODALS ---------------- */}
+
       {showVehicleModal && (
         <VehicleModal
           vehicles={vehicles}
+          passengerCount={passengerCount}
           onClose={() => setShowVehicleModal(false)}
           onSelect={handleVehicleSelect}
         />
@@ -234,7 +229,7 @@ export default function RouteTrip({
 
       {showDriverModal && (
         <DriverModal
-          drivers={filteredDrivers} // IMPORTANT CHANGE
+          drivers={filteredDrivers}
           onClose={() => setShowDriverModal(false)}
           onSelect={handleDriverSelect}
         />
@@ -243,69 +238,50 @@ export default function RouteTrip({
       {showGuideModal && (
         <TourGuideModal
           guides={tempTourGuides}
+          onClose={() => setShowGuideModal(false)}
           onSelect={(g) => {
-            setSelectedGuide(g);
+            updateResource("guide", g);
             setShowGuideModal(false);
           }}
-          onClose={() => setShowGuideModal(false)}
         />
       )}
     </div>
   );
 }
 
-// ------- SUB COMPONENT FOR CARDS -------
+/* ---------------- GLASS CARD ---------------- */
+
 function GlassCard({ item, type }) {
   return (
-    <div
-      className="
-        mt-3 p-4 rounded-2xl 
-        bg-white/30 backdrop-blur-xl 
-        border border-gray-200
-        shadow-md h-40 
-        flex items-center gap-4
-      "
-    >
-      <div className="w-28 h-28 rounded-xl overflow-hidden shadow">
-        <img
-          src={item.driverImage || item.vehicleImages?.[0]}
-          className="w-full h-full object-cover"
-        />
-      </div>
-
-      <div className="flex flex-col">
-        <p className="text-lg font-semibold">{item.vehicleName}</p>
+    <div className="mt-3 p-4 rounded-xl bg-white/30 backdrop-blur border shadow flex gap-4">
+      <img
+        src={item.driverImage || item.vehicleImages?.[0] || item.photo}
+        className="w-24 h-24 object-cover rounded-lg"
+      />
+      <div>
+        <p className="font-semibold">
+          {item.vehicleName || item.name}
+        </p>
 
         {type === "vehicle" && (
           <>
-            <p className="text-gray-600 text-sm">
-              Booking Price-{item.bookingPrice}
-            </p>
-            <p className="text-gray-600 text-sm">
-              Const Per Km -{item.costPerKm}
-            </p>
-            <p className="text-gray-600 text-sm">{item.passengerCount} Seats</p>
+            <p>Booking: {item.bookingPrice}</p>
+            <p>Per Km: {item.costPerKm}</p>
+            <p>Seats: {item.passengerCount}</p>
           </>
         )}
 
         {type === "driver" && (
           <>
-            <p className="text-gray-600 text-sm">
-              {item.firstName} {item.lastName}
-            </p>
-            <p className="text-gray-600 text-sm">{item.rating}</p>
-            <p className="text-gray-600 text-sm">{item.phone}</p>
+            <p>{item.firstName} {item.lastName}</p>
+            <p>{item.phone}</p>
           </>
         )}
 
         {type === "guide" && (
           <>
-            <p className="text-gray-600 text-sm">{item.experience}</p>
-            <p className="text-gray-600 text-sm">
-              🌐 {item.languages.join(", ")}
-            </p>
-            <p className="text-gray-600 text-sm">{item.rating}</p>
-            <p className="text-gray-600 text-sm">{item.phone}</p>
+            <p>{item.experience}</p>
+            <p>{item.languages.join(", ")}</p>
           </>
         )}
       </div>

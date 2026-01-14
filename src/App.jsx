@@ -12,21 +12,44 @@ import PrivateRoute from "./route/PrivateRoute";
 import Dashboard from "./pages/Dashboard";
 import { Toaster } from "react-hot-toast";
 import WhatsappButton from "./components/WhatsappButton";
+import FeaturedTours from "./pages/FeaturedTours";
+import PaymentPage from "./pages/PaymentPage";
+import About from '../src/pages/About'
+import Profile from '../src/pages/profile'
+import Test from './pages/test'
+import AOS from "aos";
+import "aos/dist/aos.css";
+import { useEffect } from "react";
 
 function App() {
+    useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: true,
+      easing: "ease-in-out",
+    });
+  }, []);
   return (
     <BrowserRouter>
+    
       <Navbar />
       <Toaster position="top-center" reverseOrder={false} />
+
+            <div className="pt-[80px]">
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/Home" element={<Home />} />
         <Route path="/Booking" element={<Booking />} />
         <Route path="/Contact" element={<Contact />} />
+                    <Route path="/About" element={<About />} />
+<Route path="/Profile" element={<Profile />} />
         <Route path="/CustomPackage" element={<CustomPackage />} />
         <Route path="/login" element={<UserLogin />} />
         <Route path="/register" element={<UserRegister />} />
         <Route path="/faq" element={<Faq />} />
+        {/* <Route path="/payment" element={<PaymentPage />} /> */}
+        <Route path="/payment/:ref" element={<PaymentPage />} />
 
         <Route
           path="/dashboard"
@@ -36,8 +59,11 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route path="/FeaturedTours" element={<FeaturedTours />} />
+        <Route path="/test" element={<Test />} />
       </Routes>
-      <WhatsappButton />
+      </div>
+      {/* <WhatsappButton /> */}
     </BrowserRouter>
   );
 }
