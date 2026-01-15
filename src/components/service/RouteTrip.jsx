@@ -126,7 +126,7 @@ export default function RouteTrip({
   /* ===================== RENDER ===================== */
 
   return (
-    <div className="mb-10 p-6 rounded-2xl bg-white/50 backdrop-blur-xl border shadow">
+    <div className="p-6 rounded-2xl bg-white/50 backdrop-blur-xl border shadow">
       <h1 className="text-3xl font-bold mb-8">Trip Details</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

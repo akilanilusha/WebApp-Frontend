@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-
+import { useNavigate } from "react-router-dom";
 import RouteMap from "./RouteMap";
 import GooglePlaceInput from "../../service/GooglePlaceInput";
 import DynamicAdd from "./DynamicAdd";
@@ -10,6 +10,9 @@ import { FaMapLocationDot } from "react-icons/fa6";
 import { CgSmartphoneChip } from "react-icons/cg";
 
 export default function ShortestPathForm() {
+
+  const navigate = useNavigate();
+
   const [routeData, setRouteData] = useState({
     startLocation: "",
     endLocation: "",
@@ -179,8 +182,8 @@ export default function ShortestPathForm() {
               </p>
 
               {/* CTA Button – logic will be added later */}
-              <button className="px-6 py-3 bg-black text-white rounded-md font-semibold hover:bg-gray-900 transition">
-                Book Your Trip 🚗
+              <button className="px-6 py-3 bg-black text-white rounded-md font-semibold hover:bg-gray-900 transition" onClick={()=>navigate("/CustomPackage")}>
+                Book Your Trip 
               </button>
             </div>
           </div>

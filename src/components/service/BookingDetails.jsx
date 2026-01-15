@@ -17,7 +17,7 @@ function BookingDetails({ bookingDetails, setBookingDetails }) {
         shadow-lg 
         rounded-2xl 
         p-6 
-        mb-10
+
       "
     >
       <h1 className="text-3xl font-bold mb-6 text-center sm:text-left">
@@ -25,7 +25,7 @@ function BookingDetails({ bookingDetails, setBookingDetails }) {
       </h1>
 
       {/* Booking Info */}
-      <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-x-6 gap-y-1 sm:grid-cols-2 lg:grid-cols-3 ">
         <InputField
           label="Name of Booker"
           value={bookingDetails.nameOfBooker}
@@ -95,7 +95,7 @@ function BookingDetails({ bookingDetails, setBookingDetails }) {
       </div>
 
       {/* Passenger Count */}
-      <h1 className="text-xl mt-6 mb-3 font-bold text-center sm:text-left">
+      <h1 className="text-xl mt-1 mb-3 font-bold text-center sm:text-left">
         Passenger Count
       </h1>
 

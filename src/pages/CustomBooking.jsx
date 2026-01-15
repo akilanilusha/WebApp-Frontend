@@ -119,6 +119,24 @@ export default function CustomPackage() {
   const handleStep = (step) => () => setActiveStep(step);
 
   const handleComplete = () => {
+    // STEP 1 VALIDATION
+    if (activeStep === 0) {
+      const error = validateStepOne();
+      if (error) {
+        toast.error(error);
+        return;
+      }
+    }
+
+    // STEP 2 VALIDATION
+    if (activeStep === 1) {
+      const error = validateStepTwo();
+      if (error) {
+        toast.error(error);
+        return;
+      }
+    }
+
     setCompleted({ ...completed, [activeStep]: true });
     handleNext();
   };
@@ -193,6 +211,13 @@ export default function CustomPackage() {
     Number(bookingDetails.children) +
     Number(bookingDetails.babies);
 
+  const isDateWithinRange = (date, start, end) => {
+    const d = new Date(date).getTime();
+    const s = new Date(start).getTime();
+    const e = new Date(end).getTime();
+
+    return d >= s && d <= e;
+  };
   /* =============================
      VALIDATION (UNCHANGED)
   ============================== */
@@ -218,6 +243,59 @@ export default function CustomPackage() {
       return "Please add at least one destination.";
 
     if (!routeDetails.routeData) return "Please calculate the route first.";
+
+    return null;
+  };
+
+  const validateStepOne = () => {
+    const b = bookingDetails;
+
+    if (!b.nameOfBooker) return "Name is required.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(b.emailAddress))
+      return "Valid email is required.";
+    if (!b.bookerPhone) return "Phone number is required.";
+    if (!b.passportNumber) return "Passport number is required.";
+    if (!b.arrivalDateTime) return "Arrival date & time is required.";
+    if (!b.departureDateTime) return "Departure date & time is required.";
+    if (!b.flightNumber) return "Flight number is required.";
+    if (!b.departureAirport) return "Departure airport is required.";
+
+    return null;
+  };
+
+  const validateStepTwo = () => {
+    const t = tripDetails;
+    const b = bookingDetails;
+
+    if (!t.startLocation) return "Start location is required.";
+    if (!t.endLocation) return "End location is required.";
+
+    if (!t.startDate) return "Trip start date is required.";
+    if (!t.endDate) return "Trip end date is required.";
+
+    // start date must be before or equal to end date
+    if (new Date(t.startDate) > new Date(t.endDate)) {
+      return "Trip start date cannot be after trip end date.";
+    }
+
+    // trip dates must be inside arrival & departure
+    if (
+      !isDateWithinRange(t.startDate, b.arrivalDateTime, b.departureDateTime)
+    ) {
+      return "Trip start date must be between arrival and departure dates.";
+    }
+
+    if (!isDateWithinRange(t.endDate, b.arrivalDateTime, b.departureDateTime)) {
+      return "Trip end date must be between arrival and departure dates.";
+    }
+
+    if (t.destinations.length === 0) {
+      return "Please add at least one destination.";
+    }
+
+    if (!routeDetails.routeData) {
+      return "Please calculate the route first.";
+    }
 
     return null;
   };
@@ -253,9 +331,6 @@ export default function CustomPackage() {
     }
   };
 
-  /* =============================
-     CONFIRM BOOKING (UNCHANGED)
-  ============================== */
   const confirm_booking = async () => {
     const error = validateBeforeConfirm();
     if (error) return toast.error(error);
@@ -265,27 +340,52 @@ export default function CustomPackage() {
 
     const payload = {
       user: {
-        userId: localStorage.getItem("userId"),
+        userId: Number(localStorage.getItem("userId")), // ✅ FIXED
         role: localStorage.getItem("role"),
       },
+
       bookingDetails: {
-        ...bookingDetails,
+        nameOfBooker: bookingDetails.nameOfBooker,
+        bookerEmail: bookingDetails.emailAddress, // ✅ FIXED KEY
+        bookerPhone: bookingDetails.bookerPhone,
+        passportNumber: bookingDetails.passportNumber,
+        arrivalDateTime: bookingDetails.arrivalDateTime,
+        departureDateTime: bookingDetails.departureDateTime,
+        flightNumber: bookingDetails.flightNumber,
+        departureAirport: bookingDetails.departureAirport,
+
         passengers: {
-          adults: bookingDetails.adults,
-          children: bookingDetails.children,
-          babies: bookingDetails.babies,
+          adults: Number(bookingDetails.adults),
+          children: Number(bookingDetails.children),
+          babies: Number(bookingDetails.babies),
         },
       },
+
       tripDetails,
-      routeDetails,
-      resources,
+
+      routeDetails: {
+        distance: routeDetails.distance,
+        duration: routeDetails.duration,
+        polyline:
+          routeDetails.routeData?.routes?.[0]?.overview_polyline?.points,
+        costPerKm: routeDetails.costPerKm,
+        bookingPrice: routeDetails.bookingPrice,
+      },
+
+      resources: {
+        vehicle: { vehicleId: resources.vehicle?.vehicleId ?? null },
+        driver: { driverId: resources.driver?.driverId ?? null },
+        guide: { guideId: resources.guide?.id ?? null },
+      },
+
       metadata: {
-        createdAt: new Date().toISOString(),
         source: "CUSTOM_PACKAGE",
+        packageId: 1,
       },
     };
 
     try {
+      console.log("Booking Payload:", payload);
       await axios.post(`${API_URL}/saveBooking`, payload);
       toast.success("Booking successful!");
       setShowSuccessModal(true);
@@ -361,23 +461,72 @@ export default function CustomPackage() {
           )}
 
           {/* CONTROLS */}
-          <Box sx={{ display: "flex", pt: 3 }}>
-            <Button disabled={activeStep === 0} onClick={handleBack}>
+          <Box sx={{ display: "flex", pt: 2, pb: 6, alignItems: "center" }}>
+            {/* Back Button */}
+            <Button
+              disabled={activeStep === 0}
+              onClick={handleBack}
+              sx={{
+                textTransform: "none",
+                borderRadius: 2,
+                px: 3,
+                py: 1,
+                fontWeight: 500,
+                color: "grey.700",
+                border: "1px solid",
+                borderColor: "grey.300",
+                "&:hover": {
+                  backgroundColor: "grey.100",
+                },
+                "&.Mui-disabled": {
+                  opacity: 0.5,
+                },
+              }}
+            >
               Back
             </Button>
 
             <Box sx={{ flex: "1 1 auto" }} />
 
+            {/* Next / Confirm Button */}
             {activeStep === steps.length - 1 ? (
               <Button
-                color="success"
                 variant="contained"
                 onClick={confirm_booking}
+                sx={{
+                  textTransform: "none",
+                  borderRadius: 2,
+                  px: 4,
+                  py: 1.2,
+                  fontWeight: 600,
+                  background: "linear-gradient(135deg, #16a34a, #22c55e)",
+                  boxShadow: "0 8px 20px rgba(34,197,94,0.3)",
+                  "&:hover": {
+                    background: "linear-gradient(135deg, #15803d, #16a34a)",
+                  },
+                }}
               >
                 Confirm Booking
               </Button>
             ) : (
-              <Button onClick={handleComplete}>Next</Button>
+              <Button
+                variant="contained"
+                onClick={handleComplete}
+                sx={{
+                  textTransform: "none",
+                  borderRadius: 2,
+                  px: 4,
+                  py: 1.2,
+                  fontWeight: 600,
+                  background: "linear-gradient(135deg, #2563eb, #3b82f6)",
+                  boxShadow: "0 8px 20px rgba(59,130,246,0.3)",
+                  "&:hover": {
+                    background: "linear-gradient(135deg, #1d4ed8, #2563eb)",
+                  },
+                }}
+              >
+                Next
+              </Button>
             )}
           </Box>
         </div>

@@ -25,10 +25,7 @@ export default function TripSummary({
     const mileage =
       (routeDetails.costPerKm || 0) * Number(summary.totalKm || 0);
 
-    const total =
-      (routeDetails.bookingPrice || 0) +
-      mileage +
-      guideCost;
+    const total = (routeDetails.bookingPrice || 0) + mileage + guideCost;
 
     setRouteDetails((prev) => ({
       ...prev,
@@ -154,39 +151,51 @@ export default function TripSummary({
   ============================= */
   return (
     <div className="w-full bg-white/60 backdrop-blur-xl border shadow rounded-2xl p-8">
-      <h1 className="text-2xl font-bold text-center">Trip Summary</h1>
-      <hr className="my-4" />
+      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+        <h1 className="text-2xl font-bold text-center tracking-wide">
+          Trip Summary
+        </h1>
 
-      <div className="space-y-3 text-lg">
-        <Row label="Name" value={bookingDetails.nameOfBooker} />
-        <Row label="Pickup" value={tripDetails.startLocation} />
-        <Row label="Start Date" value={tripDetails.startDate} />
-        <Row label="Drop" value={tripDetails.endLocation} />
-        <Row label="End Date" value={tripDetails.endDate} />
-        <Row label="Distance" value={`${summary?.totalKm || 0} km`} />
-        <Row label="Duration" value={summary?.totalTimeText || "-"} />
-        <Row label="Base Fare" value={routeDetails.bookingPrice} />
-        <Row
-          label="Mileage"
-          value={(
-            (routeDetails.costPerKm || 0) *
-            Number(summary?.totalKm || 0)
-          ).toFixed(2)}
-        />
-        <Row label="Guide" value={guideCost.toFixed(2)} />
+        <p className="text-center text-sm text-gray-600 mt-2 bg-red-50 border border-red-200 rounded-lg px-4 py-2">
+          <span className="font-semibold text-red-600">Important Notice:</span>{" "}
+          The displayed price is an estimated amount and may be revised based on
+          the final route, distance, or other operational factors. Any price
+          adjustment will be communicated to you via email, and your
+          confirmation will be obtained prior to requesting the advance payment.
+        </p>
 
-        <hr />
+        <hr className="my-5 border-dashed" />
 
-        <Row
-          label="Total"
-          value={routeDetails.totalCost?.toFixed(2)}
-          bold
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-gray-700">
+          <Row label="Name" value={bookingDetails.nameOfBooker} />
+          <Row label="Pickup" value={tripDetails.startLocation} />
+          <Row label="Start Date" value={tripDetails.startDate} />
+          <Row label="Drop" value={tripDetails.endLocation} />
+          <Row label="End Date" value={tripDetails.endDate} />
+          <Row label="Distance" value={`${summary?.totalKm || 0} km`} />
+          <Row label="Duration" value={summary?.totalTimeText || "-"} />
+          <Row label="Base Fare" value={`Rs. ${routeDetails.bookingPrice}`} />
+          <Row
+            label="Mileage Cost"
+            value={`Rs. ${(
+              (routeDetails.costPerKm || 0) * Number(summary?.totalKm || 0)
+            ).toFixed(2)}`}
+          />
+          <Row label="Guide Fee" value={`Rs. ${guideCost.toFixed(2)}`} />
+        </div>
+
+        <hr className="my-5" />
+
+        <div className="bg-gray-50 rounded-xl p-4">
+          <Row
+            label="Total Amount"
+            value={`Rs. ${routeDetails.totalCost?.toFixed(2)}`}
+            bold
+          />
+        </div>
       </div>
 
-      <h2 className="text-center text-xl font-medium mt-6">
-        Route Preview
-      </h2>
+      <h2 className="text-center text-xl font-medium mt-6">Route Preview</h2>
 
       <div ref={mapRef} className="w-full h-72 rounded-lg border my-4" />
 
@@ -197,7 +206,9 @@ export default function TripSummary({
             Optimized Route Order
           </div>
 
-          <p><b>A</b> — {tripDetails.startLocation}</p>
+          <p>
+            <b>A</b> — {tripDetails.startLocation}
+          </p>
 
           {summary.orderedStops.map((stop, i) => (
             <p key={i}>
@@ -206,10 +217,8 @@ export default function TripSummary({
           ))}
 
           <p>
-            <b>
-              {String.fromCharCode(66 + summary.orderedStops.length)}
-            </b>{" "}
-            — {tripDetails.endLocation}
+            <b>{String.fromCharCode(66 + summary.orderedStops.length)}</b> —{" "}
+            {tripDetails.endLocation}
           </p>
 
           <button
@@ -254,8 +263,12 @@ export default function TripSummary({
             ))}
 
             <div className="bg-green-50 p-4 rounded-lg">
-              <p><b>Total Distance:</b> {summary.totalKm} km</p>
-              <p><b>Total Time:</b> {summary.totalTimeText}</p>
+              <p>
+                <b>Total Distance:</b> {summary.totalKm} km
+              </p>
+              <p>
+                <b>Total Time:</b> {summary.totalTimeText}
+              </p>
             </div>
           </div>
         </div>
@@ -268,8 +281,12 @@ export default function TripSummary({
 
 function Row({ label, value, bold }) {
   return (
-    <div className={`grid grid-cols-2 ${bold ? "font-bold text-xl" : ""}`}>
-      <span>{label} :</span>
+    <div
+      className={`flex justify-between items-center ${
+        bold ? "text-xl font-bold text-gray-900" : "text-base"
+      }`}
+    >
+      <span className="text-gray-500">{label}</span>
       <span className="text-right">{value}</span>
     </div>
   );
