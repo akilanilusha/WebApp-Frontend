@@ -47,7 +47,7 @@ export default function ShortestPathForm() {
           end: routeData.endLocation,
           waypoints:
             routeData.travelMode === "TRANSIT" ? [] : routeData.destinations,
-          travelMode: routeData.travelMode,
+          mode: routeData.travelMode,
         }
       );
 
@@ -102,14 +102,14 @@ export default function ShortestPathForm() {
               value={routeData.travelMode}
               onChange={(e) => updateField("travelMode", e.target.value)}
             >
-              <option value="DRIVING">🚗 Driving</option>
-              <option value="WALKING">🚶 Walking</option>
-              <option value="BICYCLING">🚴 Cycling</option>
-              <option value="TRANSIT">🚆 Train</option>
+              <option value="driving">🚗 Driving</option>
+              <option value="walking">🚶 Walking</option>
+              <option value="bicycling">🚴 Cycling</option>
+              <option value="transit">🚆 Train</option>
             </select>
           </div>
 
-          {routeData.travelMode !== "TRANSIT" && (
+          {routeData.travelMode !== "transit" && (
             <DynamicAdd
               title="Waypoints"
               destinations={routeData.destinations}

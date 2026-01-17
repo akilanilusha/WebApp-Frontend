@@ -11,7 +11,7 @@ function PlanTrip() {
         <img
           src={tripgenix}
           alt="Plan your trip"
-          className="w-full  object-cover"
+          className="w-full  object-cover object-center"
         />
 
         {/* Overlay */}
