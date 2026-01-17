@@ -16,13 +16,27 @@ import FeaturedTours from "./pages/FeaturedTours";
 import PaymentPage from "./pages/PaymentPage";
 import About from '../src/pages/About'
 import Profile from '../src/pages/profile'
-
+import Test from './pages/test'
+import AOS from "aos";
+import "aos/dist/aos.css";
+import { useEffect } from "react";
 
 function App() {
+    useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: true,
+      easing: "ease-in-out",
+    });
+  }, []);
   return (
     <BrowserRouter>
+    
       <Navbar />
       <Toaster position="top-center" reverseOrder={false} />
+
+            <div className="pt-[80px]">
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/Home" element={<Home />} />
@@ -46,8 +60,10 @@ function App() {
           }
         />
         <Route path="/FeaturedTours" element={<FeaturedTours />} />
+        <Route path="/test" element={<Test />} />
       </Routes>
-      <WhatsappButton />
+      </div>
+      {/* <WhatsappButton /> */}
     </BrowserRouter>
   );
 }
