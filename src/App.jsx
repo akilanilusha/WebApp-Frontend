@@ -51,7 +51,7 @@ function App() {
         <Route path="/register" element={<UserRegister />} />
         <Route path="/faq" element={<Faq />} />
         {/* <Route path="/payment" element={<PaymentPage />} /> */}
-        <Route path="/payment/:ref" element={<PaymentPage />} />
+        <Route path="/payment/:tourId" element={<PaymentPage />} />
         <Route path="cancel-tour" element={<CanclePayment />} />
         <Route path="/payment-success" element={<SuccessPayment />} />
 

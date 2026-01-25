@@ -16,7 +16,7 @@ function CanclePayment() {
 
     try {
       const res = await axios.post(
-        `/api/cancelTourByTourist/${bookingId}`
+        `${import.meta.env.VITE_BOOKING_SERVICE_API_URL}/cancelTourByTourist/${bookingId}`
       );
 
       alert(res.data.message || "Tour cancelled successfully.");
