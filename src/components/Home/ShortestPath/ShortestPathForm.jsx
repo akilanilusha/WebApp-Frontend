@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-
+import { useNavigate } from "react-router-dom";
 import RouteMap from "./RouteMap";
 import GooglePlaceInput from "../../service/GooglePlaceInput";
 import DynamicAdd from "./DynamicAdd";
@@ -10,6 +10,9 @@ import { FaMapLocationDot } from "react-icons/fa6";
 import { CgSmartphoneChip } from "react-icons/cg";
 
 export default function ShortestPathForm() {
+
+  const navigate = useNavigate();
+
   const [routeData, setRouteData] = useState({
     startLocation: "",
     endLocation: "",
@@ -44,7 +47,7 @@ export default function ShortestPathForm() {
           end: routeData.endLocation,
           waypoints:
             routeData.travelMode === "TRANSIT" ? [] : routeData.destinations,
-          travelMode: routeData.travelMode,
+          mode: routeData.travelMode,
         }
       );
 
@@ -99,14 +102,14 @@ export default function ShortestPathForm() {
               value={routeData.travelMode}
               onChange={(e) => updateField("travelMode", e.target.value)}
             >
-              <option value="DRIVING">🚗 Driving</option>
-              <option value="WALKING">🚶 Walking</option>
-              <option value="BICYCLING">🚴 Cycling</option>
-              <option value="TRANSIT">🚆 Train</option>
+              <option value="driving">🚗 Driving</option>
+              <option value="walking">🚶 Walking</option>
+              <option value="bicycling">🚴 Cycling</option>
+              <option value="transit">🚆 Train</option>
             </select>
           </div>
 
-          {routeData.travelMode !== "TRANSIT" && (
+          {routeData.travelMode !== "transit" && (
             <DynamicAdd
               title="Waypoints"
               destinations={routeData.destinations}
@@ -179,8 +182,8 @@ export default function ShortestPathForm() {
               </p>
 
               {/* CTA Button – logic will be added later */}
-              <button className="px-6 py-3 bg-black text-white rounded-md font-semibold hover:bg-gray-900 transition">
-                Book Your Trip 🚗
+              <button className="px-6 py-3 bg-black text-white rounded-md font-semibold hover:bg-gray-900 transition" onClick={()=>navigate("/CustomPackage")}>
+                Book Your Trip 
               </button>
             </div>
           </div>
