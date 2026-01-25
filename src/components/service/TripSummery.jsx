@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import axios from "axios";
+const API_URL = import.meta.env.VITE_BOOKING_SERVICE_API_URL;
 
 export default function TripSummary({
   bookingDetails,
@@ -19,20 +21,38 @@ export default function TripSummary({
   /* =============================
      CALCULATE TOTAL COST
   ============================= */
-  useEffect(() => {
+  async function fetchEstimatedCost() {
     if (!summary) return;
 
-    const mileage =
-      (routeDetails.costPerKm || 0) * Number(summary.totalKm || 0);
+    const payload = {
+      distance: Number(summary.totalKm),
+      // duration: routeDetails.duration,
+      vehicleId: resources.vehicle?.vehicleId,
+      withGuide: resources.guide,
+    };
 
-    const total = (routeDetails.bookingPrice || 0) + mileage + guideCost;
+    // console.log("COST PAYLOAD:", payload);
+
+    const res = await axios.post(`${API_URL}/get_estimated_cost`, payload);
+
+    console.log("Estimated Days from API:", res.data.estimatedDays);
+
+    const data = res.data;
 
     setRouteDetails((prev) => ({
       ...prev,
-      totalCost: total,
+      totalCost: data.touristPayAmount,
+      bookingPrice: data.touristPayAmount,
+      costPerKm: data.baseTripCost,
+      suggestedDate: data.estimatedDays,
     }));
-  }, [summary, routeDetails.costPerKm, routeDetails.bookingPrice, guideCost]);
+  }
 
+  useEffect(() => {
+    if (summary) {
+      fetchEstimatedCost();
+    }
+  }, [summary, resources.guide]);
   /* =============================
      MAP + ROUTE LOGIC
   ============================= */
@@ -69,7 +89,7 @@ export default function TripSummary({
     const mins = Math.floor((totalDur % 3600) / 60);
 
     const orderedStops = route.waypoint_order.map(
-      (i) => tripDetails.destinations[i]
+      (i) => tripDetails.destinations[i],
     );
 
     setSummary({
@@ -98,7 +118,7 @@ export default function TripSummary({
 
     /* -------- DRAW POLYLINE -------- */
     const decoded = g.maps.geometry.encoding.decodePath(
-      route.overview_polyline.points
+      route.overview_polyline.points,
     );
 
     window.currentRouteLine = new g.maps.Polyline({
@@ -174,12 +194,25 @@ export default function TripSummary({
           <Row label="End Date" value={tripDetails.endDate} />
           <Row label="Distance" value={`${summary?.totalKm || 0} km`} />
           <Row label="Duration" value={summary?.totalTimeText || "-"} />
-          <Row label="Base Fare" value={`Rs. ${routeDetails.bookingPrice}`} />
+          <Row
+            label="Estimated Days"
+            value={
+              routeDetails.suggestedDate
+                ? `${routeDetails.suggestedDate} Days${
+                    routeDetails.suggestedDate - 1 > 0
+                      ? ` ${routeDetails.suggestedDate - 1} Nights`
+                      : ""
+                  }`
+                : "_"
+            }
+          />
+          <Row
+            label="Base Fare"
+            value={`Rs. ${routeDetails.bookingPrice.toFixed(2)}`}
+          />
           <Row
             label="Mileage Cost"
-            value={`Rs. ${(
-              (routeDetails.costPerKm || 0) * Number(summary?.totalKm || 0)
-            ).toFixed(2)}`}
+            value={`Rs. ${routeDetails.costPerKm.toFixed(2)}`}
           />
           <Row label="Guide Fee" value={`Rs. ${guideCost.toFixed(2)}`} />
         </div>

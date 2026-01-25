@@ -67,7 +67,7 @@ function VehicleModal({ vehicles, onClose, onSelect, passengerCount }) {
   async function viewVehicle(vehicleId) {
     try {
       const response = await axios.get(
-        `http://localhost:8085/vehicleController/api/v1/detailsOfVehicle/${vehicleId}`
+        `${import.meta.env.VITE_VEHICLE_SERVICE_API_URL}/vehicleController/api/v1/detailsOfVehicle/${vehicleId}`,
       );
       console.log("Vehicle Details:", response.data);
     } catch (error) {
@@ -78,14 +78,13 @@ function VehicleModal({ vehicles, onClose, onSelect, passengerCount }) {
   // ✅ FIX: filter outside JSX
   const suggestedVehicles = useMemo(() => {
     return vehicles.filter(
-      (v) => Number(v.passengerCount) >= Number(passengerCount)
+      (v) => Number(v.passengerCount) >= Number(passengerCount),
     );
   }, [vehicles, passengerCount]);
 
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded-xl w-full max-w-4xl max-h-[80vh] overflow-y-auto shadow-lg">
-
         {/* HEADER */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">Select a Vehicle</h2>
@@ -110,9 +109,7 @@ function VehicleModal({ vehicles, onClose, onSelect, passengerCount }) {
               >
                 <ImageCarousel images={v.vehicleImages} />
 
-                <h3 className="text-xl font-semibold mt-2">
-                  {v.vehicleName}
-                </h3>
+                <h3 className="text-xl font-semibold mt-2">{v.vehicleName}</h3>
                 <p className="text-gray-600">Type: {v.type}</p>
                 <p className="text-gray-600">
                   Passenger count: {v.passengerCount}
@@ -125,9 +122,7 @@ function VehicleModal({ vehicles, onClose, onSelect, passengerCount }) {
                 </p>
 
                 <div>
-                  <button onClick={() => viewVehicle(v.vehicleId)}>
-                    view
-                  </button>
+                  <button onClick={() => viewVehicle(v.vehicleId)}>view</button>
                   <button
                     onClick={() => onSelect(v)}
                     className="mt-3 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700"
@@ -152,9 +147,7 @@ function VehicleModal({ vehicles, onClose, onSelect, passengerCount }) {
               >
                 <ImageCarousel images={v.vehicleImages} />
 
-                <h3 className="text-xl font-semibold mt-2">
-                  {v.vehicleName}
-                </h3>
+                <h3 className="text-xl font-semibold mt-2">{v.vehicleName}</h3>
                 <p className="text-gray-600">Type: {v.type}</p>
                 <p className="text-gray-600">
                   Passenger count: {v.passengerCount}
@@ -167,7 +160,10 @@ function VehicleModal({ vehicles, onClose, onSelect, passengerCount }) {
                 </p>
 
                 <div>
-                  <button onClick={() => viewVehicle(v.vehicleId)}>
+                  <button
+                    onClick={() => viewVehicle(v.vehicleId)}
+                    className="mt-3 w-full text-blue py-2 rounded-md hover:bg-blue-700 hover:text-white outline-accent outline-1"
+                  >
                     view
                   </button>
                   <button
@@ -181,7 +177,6 @@ function VehicleModal({ vehicles, onClose, onSelect, passengerCount }) {
             ))}
           </div>
         </div>
-
       </div>
     </div>
   );
