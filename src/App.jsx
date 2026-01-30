@@ -13,13 +13,20 @@ import Dashboard from "./pages/Dashboard";
 import { Toaster } from "react-hot-toast";
 import WhatsappButton from "./components/WhatsappButton";
 import FeaturedTours from "./pages/FeaturedTours";
-import PaymentPage from "./pages/PaymentPage";
+import PaymentPage from "./pages/payment/PaymentPage";
 import About from '../src/pages/About'
 import Profile from '../src/pages/profile'
+<<<<<<< HEAD
 import Test from './pages/test'
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
+import CanclePayment from "./pages/payment/CanclePayment";
+import SuccessPayment from "./pages/payment/SuccessPayment";
+=======
+import TourGuidePage from "./components/tourguide/TourGuidePage";
+
+>>>>>>> 190e843c45dad216d42e81a7acdb48188d652302
 
 function App() {
     useEffect(() => {
@@ -49,7 +56,10 @@ function App() {
         <Route path="/register" element={<UserRegister />} />
         <Route path="/faq" element={<Faq />} />
         {/* <Route path="/payment" element={<PaymentPage />} /> */}
-        <Route path="/payment/:ref" element={<PaymentPage />} />
+        <Route path="/payment/:tourId" element={<PaymentPage />} />
+        <Route path="cancel-tour" element={<CanclePayment />} />
+        <Route path="/payment-success" element={<SuccessPayment />} />
+
 
         <Route
           path="/dashboard"
@@ -61,6 +71,9 @@ function App() {
         />
         <Route path="/FeaturedTours" element={<FeaturedTours />} />
         <Route path="/test" element={<Test />} />
+
+        {/* Tour Guide Page */}
+        <Route path="/TourGuide" element={<TourGuidePage />} />
       </Routes>
       </div>
       {/* <WhatsappButton /> */}
