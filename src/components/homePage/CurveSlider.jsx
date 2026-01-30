@@ -4,8 +4,7 @@ import { Navigation, A11y, Autoplay } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/navigation";
-import Card1 from "./Card1"; // adjust path if your Guide file is elsewhere
-
+import Card1 from "./Card1";
 // images (use your own paths - keep exact filenames + extensions)
 import guideImg from "../../assets/homepage/hero.jpg";
 import articles from "../../assets/homepage/articles.jpg";
@@ -25,16 +24,24 @@ const guides = [
 
 export default function CurveSlider() {
   return (
-    <section className="w-full max-w-6xl mx-auto py-8 px-2 overflow-visible bg-transparent">
+    <section className="relative container mx-auto overflow-hidden bg-transparent">
+
+      {/* LEFT FADE */}
+      <div className="pointer-events-none absolute left-0 top-0 h-full w-24 
+                      bg-gradient-to-r from-white to-transparent z-10"></div>
+
+      {/* RIGHT FADE */}
+      <div className="pointer-events-none absolute right-0 top-0 h-full w-24 
+                      bg-gradient-to-l from-white to-transparent z-10"></div>
+
       <Swiper
         modules={[Autoplay, A11y, Navigation]}
-        spaceBetween={30}
+        spaceBetween={20}
         centeredSlides={true}
-        slidesPerView={"auto"}
+        slidesPerView="auto"
         navigation={false}
         loop={true}
         keyboard={{ enabled: true }}
-        // style={{ overflow: 'visible' }}
         breakpoints={{
           340: {
             slidesPerView: 1,
@@ -61,8 +68,7 @@ export default function CurveSlider() {
             key={g.id}
             className="px-4 flex justify-center w-64 md:w-72 lg:w-80"
           >
-            {/* slide-card is targeted by Tailwind @layer styles */}
-            <div className="flex justify-center items-center slide-card">
+            <div className="flex justify-center items-center bg-transparent">
               <Card1 img={g.img} name={g.name} />
             </div>
           </SwiperSlide>

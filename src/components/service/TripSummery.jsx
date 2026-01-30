@@ -1,36 +1,64 @@
 import { useEffect, useRef, useState } from "react";
+import axios from "axios";
+const API_URL = import.meta.env.VITE_BOOKING_SERVICE_API_URL;
 
 export default function TripSummary({
-  name,
-  startLocation,
-  endLocation,
-  startDate,
-  endDate,
-  waypoints,
-  routeData,
-  cost_per_km,
-  booking_price,
-  guid_cost = 4500.0,
+  bookingDetails,
+  tripDetails,
+  routeDetails,
+  setRouteDetails,
+  resources,
   confirmBooking,
-  setDistance,
-  setDuration,
-  totalCost,
-  setTotalCost,
 }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
-  const [summary, setSummary] = useState(null);
 
-  // NEW (ONLY ADDITION)
+  const [summary, setSummary] = useState(null);
   const [openDetails, setOpenDetails] = useState(false);
 
-  const millageCharge = (cost_per_km || 0) * (summary?.totalKm || 0);
-  totalCost = (booking_price || 0) + millageCharge + (guid_cost || 0);
-  setTotalCost(totalCost);
+  const guideCost = resources.guide ? 4500 : 0;
+
+  /* =============================
+     CALCULATE TOTAL COST
+  ============================= */
+  async function fetchEstimatedCost() {
+    if (!summary) return;
+
+    const payload = {
+      distance: Number(summary.totalKm),
+      // duration: routeDetails.duration,
+      vehicleId: resources.vehicle?.vehicleId,
+      withGuide: resources.guide,
+    };
+
+    // console.log("COST PAYLOAD:", payload);
+
+    const res = await axios.post(`${API_URL}/get_estimated_cost`, payload);
+
+    console.log("Estimated Days from API:", res.data.estimatedDays);
+
+    const data = res.data;
+
+    setRouteDetails((prev) => ({
+      ...prev,
+      totalCost: data.touristPayAmount,
+      bookingPrice: data.touristPayAmount,
+      costPerKm: data.baseTripCost,
+      suggestedDate: data.estimatedDays,
+    }));
+  }
 
   useEffect(() => {
+    if (summary) {
+      fetchEstimatedCost();
+    }
+  }, [summary, resources.guide]);
+  /* =============================
+     MAP + ROUTE LOGIC
+  ============================= */
+  useEffect(() => {
     const g = window.google;
-    if (!g) return;
+    if (!g || !routeDetails.routeData) return;
 
     if (!mapInstance.current) {
       mapInstance.current = new g.maps.Map(mapRef.current, {
@@ -39,23 +67,7 @@ export default function TripSummary({
       });
     }
 
-    if (!routeData || !routeData.routes) {
-      if (window.currentRouteLine) {
-        window.currentRouteLine.setMap(null);
-        window.currentRouteLine = null;
-      }
-
-      if (window.routeMarkers) {
-        window.routeMarkers.forEach((m) => m.setMap(null));
-      }
-      window.routeMarkers = [];
-
-      mapInstance.current.setZoom(8);
-      mapInstance.current.setCenter({ lat: 7.8731, lng: 80.7718 });
-      return;
-    }
-
-    const route = routeData.routes[0];
+    const route = routeDetails.routeData.routes[0];
     const legs = route.legs;
 
     let totalDist = 0;
@@ -75,34 +87,45 @@ export default function TripSummary({
     const totalKm = (totalDist / 1000).toFixed(2);
     const hrs = Math.floor(totalDur / 3600);
     const mins = Math.floor((totalDur % 3600) / 60);
-    const totalTimeText = `${hrs} hrs ${mins} mins`;
-    const totalDurationMinutes = Math.floor(totalDur / 60);
 
-    const orderedStops = route.waypoint_order.map((i) => waypoints[i]);
+    const orderedStops = route.waypoint_order.map(
+      (i) => tripDetails.destinations[i],
+    );
 
     setSummary({
       legsSummary,
       totalKm,
-      totalTimeText,
+      totalTimeText: `${hrs} hrs ${mins} mins`,
       orderedStops,
     });
 
-    setDistance(Number(totalKm));
-    setDuration(totalDurationMinutes);
+    setRouteDetails((prev) => ({
+      ...prev,
+      distance: Number(totalKm),
+      duration: Math.floor(totalDur / 60),
+    }));
 
-    const decoded = g.maps.geometry.encoding.decodePath(
-      route.overview_polyline.points
-    );
-
+    /* -------- CLEAR OLD MAP ITEMS -------- */
     if (window.currentRouteLine) {
       window.currentRouteLine.setMap(null);
+      window.currentRouteLine = null;
     }
+
+    if (window.routeMarkers) {
+      window.routeMarkers.forEach((m) => m.setMap(null));
+    }
+    window.routeMarkers = [];
+
+    /* -------- DRAW POLYLINE -------- */
+    const decoded = g.maps.geometry.encoding.decodePath(
+      route.overview_polyline.points,
+    );
 
     window.currentRouteLine = new g.maps.Polyline({
       path: decoded,
       geodesic: true,
       strokeColor: "#007aff",
-      strokeOpacity: 0.8,
+      strokeOpacity: 0.85,
       strokeWeight: 4,
     });
 
@@ -112,113 +135,124 @@ export default function TripSummary({
     decoded.forEach((p) => bounds.extend(p));
     mapInstance.current.fitBounds(bounds);
 
-    if (!window.routeMarkers) window.routeMarkers = [];
-    window.routeMarkers.forEach((m) => m.setMap(null));
-    window.routeMarkers = [];
-
+    /* -------- MARKERS -------- */
     const labels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+    // START
     const startMarker = new g.maps.Marker({
       map: mapInstance.current,
       position: legs[0].start_location,
       label: labels[0],
-      title: startLocation,
+      title: tripDetails.startLocation,
       icon: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
     });
     window.routeMarkers.push(startMarker);
 
+    // WAYPOINTS + END
     legs.forEach((leg, i) => {
-      const isEnd = i === legs.length - 1;
+      const isLast = i === legs.length - 1;
 
       const marker = new g.maps.Marker({
         map: mapInstance.current,
         position: leg.end_location,
         label: labels[i + 1],
         title: leg.end_address,
-        icon: isEnd
+        icon: isLast
           ? "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
           : "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
       });
 
       window.routeMarkers.push(marker);
     });
-  }, [routeData]);
+  }, [routeDetails.routeData]);
 
+  /* =============================
+     RENDER
+  ============================= */
   return (
-    <div className="w-full bg-white/60 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl p-10">
-      <h1 className="text-2xl font-bold text-center">Trip Summary</h1>
-      <hr className="my-3" />
+    <div className="w-full bg-white/60 backdrop-blur-xl border shadow rounded-2xl p-8">
+      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+        <h1 className="text-2xl font-bold text-center tracking-wide">
+          Trip Summary
+        </h1>
 
-      <div className="w-full max-w-xl mt-6 space-y-4 text-lg p-4">
-        <div className="grid grid-cols-2">
-          <span>Name :</span>
-          <span>{name}</span>
-        </div>
-        <div className="grid grid-cols-2">
-          <span>Pickup :</span>
-          <span>{startLocation}</span>
-        </div>
-        <div className="grid grid-cols-2">
-          <span>Start Date :</span>
-          <span>{startDate}</span>
-        </div>
-        <div className="grid grid-cols-2">
-          <span>Drop :</span>
-          <span>{endLocation}</span>
-        </div>
-        <div className="grid grid-cols-2">
-          <span>End Date :</span>
-          <span>{endDate}</span>
-        </div>
-        <div className="grid grid-cols-2">
-          <span>Distance :</span>
-          <span>{summary?.totalKm} Km</span>
-        </div>
-        <div className="grid grid-cols-2">
-          <span>Duration :</span>
-          <span>{summary?.totalTimeText}</span>
-        </div>
-        <div className="grid grid-cols-2">
-          <span>Base Fare :</span>
-          <span>{booking_price?.toFixed(2)}</span>
-        </div>
-        <div className="grid grid-cols-2">
-          <span>Mileage :</span>
-          <span>{millageCharge.toFixed(2)}</span>
-        </div>
-        <div className="grid grid-cols-2">
-          <span>Guide :</span>
-          <span>{guid_cost.toFixed(2)}</span>
+        <p className="text-center text-sm text-gray-600 mt-2 bg-red-50 border border-red-200 rounded-lg px-4 py-2">
+          <span className="font-semibold text-red-600">Important Notice:</span>{" "}
+          The displayed price is an estimated amount and may be revised based on
+          the final route, distance, or other operational factors. Any price
+          adjustment will be communicated to you via email, and your
+          confirmation will be obtained prior to requesting the advance payment.
+        </p>
+
+        <hr className="my-5 border-dashed" />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-gray-700">
+          <Row label="Name" value={bookingDetails.nameOfBooker} />
+          <Row label="Pickup" value={tripDetails.startLocation} />
+          <Row label="Start Date" value={tripDetails.startDate} />
+          <Row label="Drop" value={tripDetails.endLocation} />
+          <Row label="End Date" value={tripDetails.endDate} />
+          <Row label="Distance" value={`${summary?.totalKm || 0} km`} />
+          <Row label="Duration" value={summary?.totalTimeText || "-"} />
+          <Row
+            label="Estimated Days"
+            value={
+              routeDetails.suggestedDate
+                ? `${routeDetails.suggestedDate} Days${
+                    routeDetails.suggestedDate - 1 > 0
+                      ? ` ${routeDetails.suggestedDate - 1} Nights`
+                      : ""
+                  }`
+                : "_"
+            }
+          />
+          <Row
+            label="Base Fare"
+            value={`Rs. ${routeDetails.bookingPrice.toFixed(2)}`}
+          />
+          <Row
+            label="Mileage Cost"
+            value={`Rs. ${routeDetails.costPerKm.toFixed(2)}`}
+          />
+          <Row label="Guide Fee" value={`Rs. ${guideCost.toFixed(2)}`} />
         </div>
 
-        <hr />
+        <hr className="my-5" />
 
-        <div className="grid grid-cols-2 font-bold text-xl">
-          <span>Total :</span>
-          <span className="text-right">{totalCost.toFixed(2)}</span>
+        <div className="bg-gray-50 rounded-xl p-4">
+          <Row
+            label="Total Amount"
+            value={`Rs. ${routeDetails.totalCost?.toFixed(2)}`}
+            bold
+          />
         </div>
       </div>
 
       <h2 className="text-center text-xl font-medium mt-6">Route Preview</h2>
+
       <div ref={mapRef} className="w-full h-72 rounded-lg border my-4" />
 
-      {/* 🔹 EXISTING SUMMARY UI (UNCHANGED) */}
+      {/* ORDERED ROUTE TEXT */}
       {summary && (
-        <div className="bg-white border p-5 rounded-xl shadow-sm text-sm space-y-5">
-          <div className="text-green-700 font-semibold">Optimized Route</div>
-
-          <div>
-            <p>A — {startLocation}</p>
-            {summary.orderedStops.map((s, i) => (
-              <p key={i}>
-                {String.fromCharCode(66 + i)} — {s}
-              </p>
-            ))}
-            <p>
-              {String.fromCharCode(66 + summary.orderedStops.length)} —{" "}
-              {endLocation}
-            </p>
+        <div className="bg-white border p-5 rounded-xl shadow-sm text-sm space-y-3 mt-4">
+          <div className="font-semibold text-green-700">
+            Optimized Route Order
           </div>
+
+          <p>
+            <b>A</b> — {tripDetails.startLocation}
+          </p>
+
+          {summary.orderedStops.map((stop, i) => (
+            <p key={i}>
+              <b>{String.fromCharCode(66 + i)}</b> — {stop}
+            </p>
+          ))}
+
+          <p>
+            <b>{String.fromCharCode(66 + summary.orderedStops.length)}</b> —{" "}
+            {tripDetails.endLocation}
+          </p>
 
           <button
             onClick={() => setOpenDetails(true)}
@@ -230,16 +264,16 @@ export default function TripSummary({
       )}
 
       <button
-        className="bg-[#0F3B45] text-white w-full py-2 rounded-full mt-6"
+        className="bg-[#0F3B45] text-white w-full py-3 rounded-full mt-6"
         onClick={confirmBooking}
       >
         Confirm Booking
       </button>
 
-      {/*  MODAL (ONLY ADDITION) */}
+      {/* FULL ROUTE DETAILS MODAL */}
       {openDetails && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-          <div className="bg-white w-[95%] max-w-3xl max-h-[90vh] overflow-y-auto rounded-xl p-6 relative">
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+          <div className="bg-white max-w-3xl w-full p-6 rounded-xl max-h-[90vh] overflow-y-auto relative">
             <button
               onClick={() => setOpenDetails(false)}
               className="absolute top-3 right-4 text-xl"
@@ -252,7 +286,7 @@ export default function TripSummary({
             </h2>
 
             {summary.legsSummary.map((l, i) => (
-              <div key={i} className="border rounded p-4 mb-3">
+              <div key={i} className="border p-4 rounded mb-3">
                 <p className="font-semibold">
                   {l.start.split(",")[0]} → {l.end.split(",")[0]}
                 </p>
@@ -272,6 +306,21 @@ export default function TripSummary({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ---------------- HELPER ---------------- */
+
+function Row({ label, value, bold }) {
+  return (
+    <div
+      className={`flex justify-between items-center ${
+        bold ? "text-xl font-bold text-gray-900" : "text-base"
+      }`}
+    >
+      <span className="text-gray-500">{label}</span>
+      <span className="text-right">{value}</span>
     </div>
   );
 }

@@ -1,25 +1,31 @@
-import Card1 from "../homePage/Card1"
 import CurveSlider from "./CurveSlider"
 import Topic from "./topic"
-import tour from "../../assets/sectionImg/tour.jpg"
 
-function TourCatergory(){
-    return(
+function TourCatergory() {
+  return (
+    <section className="w-full min-h-[700px] flex flex-col
+                        bg-gradient-to-b from-white via-slate-50 to-white">
 
-         
-            <section className="w-full h-[700px] flex flex-col overflow-visible" style={{backgroundImage: `url(${tour})` }}>
-               <Topic topic="Wonderfull Places For You" subtopic="Tour Categories" margin="mt-20"/>
-              
+      {/* 🔹 Heading Section */}
+      <div className="text-center pt-24 pb-12">
+        <Topic
+          topic="Wonderfull Places For You"
+          subtopic="Tour Categories"
+        />
 
-                <div className="w-full h-[800px] flex items-center justify-center px-4 sm:px-10 overflow-hidden">
-                   
+        {/* Accent line */}
+        <div className="mt-6 flex justify-center">
+          <span className="w-20 h-1 rounded-full bg-blue-600"></span>
+        </div>
+      </div>
 
-                    <CurveSlider />
-                    
-                </div>
-            </section>
+      {/* 🔹 Slider */}
+      <div className="w-full flex items-center justify-center px-4 sm:px-10">
+        <CurveSlider />
+      </div>
 
-    )
+    </section>
+  )
 }
 
 export default TourCatergory

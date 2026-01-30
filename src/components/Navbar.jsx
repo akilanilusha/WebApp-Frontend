@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   Disclosure,
   DisclosureButton,
@@ -11,7 +11,7 @@ import {
 } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { IoIosArrowDown } from "react-icons/io";
-import Logo from "../assets/logo.png";
+// import Logo from "../assets/logo.png";
 
 const navigation = [
   { name: "Home", href: "/home" },
@@ -55,171 +55,218 @@ export default function Navbar() {
   };
 
   return (
-    <Disclosure as="nav" className="bg-white shadow-md sticky top-0 z-50">
+    <Disclosure
+      as="nav"
+      className="fixed top-0 w-full z-50 bg-black backdrop-blur-md"
+    >
       {({ open }) => (
         <>
-          <div className="mx-auto  px-4 sm:px-6 lg:px-8 ">
-            <div className="flex h-16 items-center justify-between">
+          {/* ================= DESKTOP BAR ================= */}
+          <div className="relative z-50 px-6 md:px-10 py-5 flex items-center justify-between text-white">
+            {/* Logo */}
+            <div className="flex items-center gap-2 font-bold text-xl">
+              {/* <img src={Logo} className="h-8" /> */}
+              TripGenix
+            </div>
 
-              <img src={Logo} alt="Logo" className="h-8 w-auto" />
+            {/* Center Menu */}
+            <div className="hidden md:flex items-center gap-6 bg-white/20 backdrop-blur-md rounded-full px-6 py-2 text-sm">
+              {/* Home (pill active) */}
+              <NavLink
+                to="/home"
+                className={({ isActive }) =>
+                  classNames(
+                    "px-4 py-1 rounded-full font-medium transition",
+                    isActive ? "bg-white text-black" : "hover:text-white/80"
+                  )
+                }
+              >
+                Home
+              </NavLink>
 
-              <div className="hidden sm:flex items-center space-x-6 text-sm font-medium">
-                <Link to="/home" className="text-gray-700 hover:text-indigo-600">
-                  Home
-                </Link>
+              {/* Services Dropdown */}
+              <Menu as="div" className="relative">
+                <MenuButton className="flex items-center gap-1 hover:text-white/80">
+                  Services <IoIosArrowDown />
+                </MenuButton>
 
-                <Menu as="div" className="relative group">
-                  <MenuButton className="flex items-center gap-1 text-gray-700 hover:text-indigo-600">
-                    Service
-                    <IoIosArrowDown className="transition-all duration-300 group-hover:rotate-180" />
+                <MenuItems className="absolute top-full mt-3 w-44 bg-white text-black rounded-xl shadow-lg overflow-hidden">
+                  {services.map((item) => (
+                    <MenuItem key={item.name}>
+                      <NavLink
+                        to={item.href}
+                        className={({ isActive }) =>
+                          classNames(
+                            "block px-4 py-2 text-sm",
+                            isActive
+                              ? "bg-gray-100 font-semibold"
+                              : "hover:bg-gray-100"
+                          )
+                        }
+                      >
+                        {item.name}
+                      </NavLink>
+                    </MenuItem>
+                  ))}
+                </MenuItems>
+              </Menu>
+
+              {/* Other Links */}
+              {navigation.slice(1).map((item) => (
+                <NavLink
+                  key={item.name}
+                  to={item.href}
+                  className={({ isActive }) =>
+                    classNames(
+                      "px-4 py-1 rounded-full font-medium transition",
+
+                      isActive
+                        ? "bg-white text-black" : "hover:text-white/80"
+                    )
+                  }
+                >
+                  {item.name}
+                </NavLink>
+              ))}
+            </div>
+
+            {/* Right Actions */}
+            <div className="flex items-center gap-3">
+              {!isLoggedIn ? (
+                <NavLink
+                  to="/login"
+                  className="bg-white text-black px-5 py-2 rounded-full text-sm font-semibold"
+                >
+                  Login
+                </NavLink>
+              ) : (
+                <Menu as="div" className="relative">
+                  <MenuButton>
+                    <img
+                      src={profileImageUrl}
+                      className="h-9 w-9 rounded-full border border-white"
+                    />
                   </MenuButton>
 
-                  <MenuItems
-                    transition
-                    className="absolute left-0 top-[120%] w-48 bg-white shadow-lg border border-gray-200
-                    opacity-0 invisible group-hover:opacity-100 group-hover:visible
-                    transition-all duration-300 data-closed:opacity-0"
-                  >
-                    {services.map((item) => (
-                      <MenuItem key={item.name}>
-                        <Link
-                          to={item.href}
-                          className="block px-4 py-2 text-sm hover:bg-gray-100"
-                        >
-                          {item.name}
-                        </Link>
-                      </MenuItem>
-                    ))}
+                  <MenuItems className="absolute right-0 mt-3 w-40 bg-white text-black rounded-xl shadow-lg">
+                    <MenuItem>
+                      <NavLink
+                        to="/dashboard"
+                        className="block px-4 py-2 hover:bg-gray-100"
+                      >
+                        Dashboard
+                      </NavLink>
+                    </MenuItem>
+                    <MenuItem>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
+                      >
+                        Logout
+                      </button>
+                    </MenuItem>
                   </MenuItems>
                 </Menu>
+              )}
 
-                {navigation.slice(1).map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className="text-gray-700 hover:text-indigo-600"
-                  >
-                    {item.name}
-                  </Link>
-                ))}
-              </div>
-
-              <div className="flex items-center gap-3">
-                {!isLoggedIn ? (
-                  <Link
-                    to="/login"
-                    className="px-5 py-2 border border-[#113D47] text-[#113D47]
-                    rounded-full hover:bg-[#113D47] hover:text-white text-sm"
-                  >
-                    Login
-                  </Link>
+              {/* Mobile Toggle */}
+              <DisclosureButton className="md:hidden p-2">
+                {open ? (
+                  <XMarkIcon className="h-6 w-6" />
                 ) : (
-                  <Menu as="div" className="relative">
-                    <MenuButton className="flex rounded-full">
-                      <img
-                        src={profileImageUrl}
-                        alt="User"
-                        className="h-8 w-8 rounded-full"
-                      />
-                    </MenuButton>
-
-                    <MenuItems
-                      transition
-                      className="absolute right-0 mt-2 w-40 rounded-md bg-white shadow-lg
-                      outline outline-black/5 data-closed:scale-95 data-closed:opacity-0"
-                    >
-                      <MenuItem>
-                        <Link
-                          to="/dashboard"
-                          className="block px-4 py-2 text-sm hover:bg-gray-100"
-                        >
-                          Dashboard
-                        </Link>
-                      </MenuItem>
-                      <MenuItem>
-                        <button
-                          onClick={handleLogout}
-                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                        >
-                          Logout
-                        </button>
-                      </MenuItem>
-                    </MenuItems>
-                  </Menu>
+                  <Bars3Icon className="h-6 w-6" />
                 )}
-
-                <DisclosureButton className="sm:hidden p-2">
-                  {open ? (
-                    <XMarkIcon className="h-6 w-6" />
-                  ) : (
-                    <Bars3Icon className="h-6 w-6" />
-                  )}
-                </DisclosureButton>
-              </div>
+              </DisclosureButton>
             </div>
           </div>
 
+          {/* ================= MOBILE OVERLAY ================= */}
           <div
             className={classNames(
               open ? "opacity-100 visible" : "opacity-0 invisible",
-              "fixed inset-0 bg-black/40 transition sm:hidden"
+              "fixed inset-0 bg-black/50 transition md:hidden"
             )}
           />
 
+          {/* ================= MOBILE PANEL ================= */}
           <DisclosurePanel
             static
             className={classNames(
               open ? "translate-x-0" : "translate-x-full",
-              "fixed top-0 right-0 h-full w-72 bg-white shadow-lg transform transition-transform duration-300 sm:hidden z-50"
+              "fixed top-0 right-0 h-full w-full bg-white text-black transform transition-transform duration-300 md:hidden z-50"
             )}
           >
             <div className="flex items-center justify-between px-6 py-4 border-b">
-              <img src={Logo} alt="Logo" className="h-7 w-auto" />
-              <DisclosureButton className="p-2 hover:bg-gray-100 rounded">
+              <span className="font-bold text-lg">TripGenix</span>
+              <DisclosureButton>
                 <XMarkIcon className="h-6 w-6" />
               </DisclosureButton>
             </div>
 
-            <div className="px-6 py-6 space-y-4">
-              <Link to="/home" className="block">Home</Link>
+            <div className="px-6 py-6 space-y-4 bg-white">
+              <NavLink
+                to="/home"
+                className={({ isActive }) =>
+                  classNames(
+                    "block px-3 py-2 rounded",
+                    isActive ? "bg-blue-600 text-white" : "text-gray-700"
+                  )
+                }
+              >
+                Home
+              </NavLink>
 
               <div>
-                <p className="font-semibold">Service</p>
+                <p className="font-semibold mb-1">Services</p>
                 {services.map((item) => (
-                  <Link
+                  <NavLink
                     key={item.name}
                     to={item.href}
-                    className="block ml-4 text-gray-600 hover:text-indigo-600"
+                    className={({ isActive }) =>
+                      classNames(
+                        "block ml-3 px-2 py-1 rounded",
+                        isActive ? "bg-blue-100 text-blue-700" : "text-gray-600"
+                      )
+                    }
                   >
                     {item.name}
-                  </Link>
+                  </NavLink>
                 ))}
               </div>
 
               {navigation.slice(1).map((item) => (
-                <Link key={item.name} to={item.href} className="block">
+                <NavLink
+                  key={item.name}
+                  to={item.href}
+                  className={({ isActive }) =>
+                    classNames(
+                      "block px-3 py-2 rounded",
+                      isActive ? "bg-blue-600 text-white" : "text-gray-700"
+                    )
+                  }
+                >
                   {item.name}
-                </Link>
+                </NavLink>
               ))}
 
               {!isLoggedIn ? (
-                <Link
+                <NavLink
                   to="/login"
-                  className="block text-center bg-indigo-600 text-white py-2 rounded"
+                  className="block bg-blue-600 text-white text-center py-2 rounded-full"
                 >
                   Login
-                </Link>
+                </NavLink>
               ) : (
                 <>
-                  <Link
+                  <NavLink
                     to="/dashboard"
-                    className="block text-center bg-gray-100 py-2 rounded"
+                    className="block bg-gray-100 text-center py-2 rounded-full"
                   >
                     Dashboard
-                  </Link>
+                  </NavLink>
                   <button
                     onClick={handleLogout}
-                    className="block w-full bg-red-600 text-white py-2 rounded"
+                    className="block w-full bg-red-600 text-white py-2 rounded-full"
                   >
                     Logout
                   </button>
