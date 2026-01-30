@@ -16,6 +16,8 @@ import FeaturedTours from "./pages/FeaturedTours";
 import PaymentPage from "./pages/payment/PaymentPage";
 import About from '../src/pages/About'
 import Profile from '../src/pages/profile'
+import TourGuidePage from "./components/tourguide/TourGuidePage";
+
 import Test from './pages/test'
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -65,6 +67,9 @@ function App() {
           }
         />
         <Route path="/FeaturedTours" element={<FeaturedTours />} />
+
+        {/* Tour Guide Page */}
+        <Route path="/TourGuide" element={<TourGuidePage />} />
         <Route path="/test" element={<Test />} />
       </Routes>
       </div>
