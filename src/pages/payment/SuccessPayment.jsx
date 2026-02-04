@@ -1,10 +1,14 @@
 import React from "react";
 import { CheckCircle, Download, ArrowRight } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useRef } from "react";
+
 
 function SuccessPayment() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
+  const hasConfirmedRef = useRef(false);
+
 
   // values passed from payment redirect
   const tourId = params.get("tourId");
@@ -12,11 +16,39 @@ function SuccessPayment() {
   const amount = params.get("amount");
   const currency = params.get("currency") || "LKR";
 
+  useEffect(() => {
+    if (!tourId || hasConfirmedRef.current) return;
+
+    hasConfirmedRef.current = true;
+
+    fetch(
+      `${import.meta.env.VITE_BOOKING_SERVICE_API_URL}/confirmTourByTourist/${tourId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Tour confirmation failed");
+        }
+        return res.text();
+      })
+      .then(() => {
+        console.log("✅ Tour confirmed successfully");
+      })
+      .catch((err) => {
+        console.error("❌ Failed to confirm tour", err);
+      });
+  }, [tourId]);
+
   const handleDownloadInvoice = () => {
     if (!tourId) return;
 
     window.open(
-      `http://localhost:8087/paymentcontroller/invoice/${tourId}`,
+      `${import.meta.env.VITE_PAYMENTSERVICE_API_URL}/invoice/${tourId}`,
       "_blank"
     );
   };
