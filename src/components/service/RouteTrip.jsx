@@ -7,7 +7,7 @@ import TourGuideModal from "./TourGuideModal";
 import GooglePlaceInput from "../service/GooglePlaceInput";
 import axios from "axios";
 
-const DRIVER_API = import.meta.env.VITE_DRIVER_SERVICE_API_URL;
+const DRIVER_API = import.meta.env.VITE_DRIVER_SERVICE_API_URL+"/get-approved-drivers";
 const VEHICLE_API = import.meta.env.VITE_VEHICLE_SERVICE_API_URL;
 
 const tempTourGuides = [

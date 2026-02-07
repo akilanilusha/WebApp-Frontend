@@ -83,19 +83,19 @@ export default function PaymentPage() {
       merchant_id: "1233436",
 
       return_url:
-        `http://localhost:5173/payment-success` +
+        `${import.meta.env.VITE_WEB_APP_URL}/payment-success` +
         `?tourId=${tourId}` +
         `&reference=${booking.referenceId}` +
         `&amount=${amount}` +
         `&currency=${currency}`,
 
       cancel_url:
-        `http://localhost:5173/payment-cancel` +
+        `${import.meta.env.VITE_WEB_APP_URL}/payment-cancel` +
         `?tourId=${tourId}` +
         `&reference=${booking.referenceId}`,
 
       notify_url:
-        "http://localhost:8087/bookingservice/api/v1/payment-notify",
+        `${import.meta.env.VITE_PAYMENTSERVICE_API_URL}/notify`,
 
       order_id: orderIdRef.current,
       items: "TripGenix Tour Package",
